@@ -12,6 +12,9 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 import org.usfirst.frc.team7146.robot.commands.TeleopTankDriveCommand;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
@@ -23,6 +26,7 @@ import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
  * project.
  */
 public class Robot extends TimedRobot {
+	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Robot.class.getName());
 	public static ChasisDriveSubsystem m_ChasisTrainSubsystem;
 	public static OI m_oi;
 
@@ -36,8 +40,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		m_oi = new OI();
-		m_ChasisTrainSubsystem = new ChasisDriveSubsystem(RobotMap.MOTOR_PID[0], RobotMap.MOTOR_PID[1],
-				RobotMap.MOTOR_PID[2]);
+		m_ChasisTrainSubsystem = new ChasisDriveSubsystem(RobotMap.MOTOR.MOTOR_PID[0], RobotMap.MOTOR.MOTOR_PID[1],
+				RobotMap.MOTOR.MOTOR_PID[2]);
 		m_chooser.addDefault("Default Auto", new TeleopTankDriveCommand());
 		// chooser.addObject("My Auto", new MyAutoCommand());
 		SmartDashboard.putData("Auto mode", m_chooser);
