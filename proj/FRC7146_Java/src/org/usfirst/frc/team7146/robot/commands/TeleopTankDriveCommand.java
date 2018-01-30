@@ -8,14 +8,17 @@
 package org.usfirst.frc.team7146.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
+
+import java.util.logging.Logger;
+
 import org.usfirst.frc.team7146.robot.Robot;
 
 /**
  * An example command. You can replace me with your own command.
  */
 public class TeleopTankDriveCommand extends Command {
+	private static final java.util.logging.Logger logger = Logger.getLogger(TeleopTankDriveCommand.class.getName());
 	public TeleopTankDriveCommand() {
-		// Use requires() here to declare subsystem dependencies
 		super("TeleopTankDriveCommand");
 		requires(Robot.m_ChasisTrainSubsystem);
 	}
