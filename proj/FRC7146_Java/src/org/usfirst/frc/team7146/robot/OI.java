@@ -7,8 +7,9 @@
 
 package org.usfirst.frc.team7146.robot;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Logger;
+
+import org.usfirst.frc.team7146.robot.commands.EmergencyStopCommand;
 
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Joystick;
@@ -22,7 +23,7 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
  */
 public class OI {
 
-	private static final Logger logger = LogManager.getLogger(OI.class.getName());
+	private static final Logger logger = Logger.getLogger(OI.class.getName());
 
 	public Joystick mJoystick1 = new Joystick(0);
 	public Button mXboxBtnA = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_A),

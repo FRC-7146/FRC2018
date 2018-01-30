@@ -9,14 +9,15 @@ package org.usfirst.frc.team7146.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-import org.apache.logging.log4j.LogManager;
+import java.util.logging.Logger;
+
 import org.usfirst.frc.team7146.robot.Robot;
 
 /**
  * An example command. You can replace me with your own command.
  */
 public class TeleopTankDriveCommand extends Command {
-	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(TeleopTankDriveCommand.class.getName());
+	private static final java.util.logging.Logger logger = Logger.getLogger(TeleopTankDriveCommand.class.getName());
 	public TeleopTankDriveCommand() {
 		super("TeleopTankDriveCommand");
 		requires(Robot.m_ChasisTrainSubsystem);

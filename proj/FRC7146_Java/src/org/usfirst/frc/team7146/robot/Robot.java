@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import java.util.logging.Logger;
+
 import org.usfirst.frc.team7146.robot.commands.TeleopTankDriveCommand;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
@@ -26,7 +26,7 @@ import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
  * project.
  */
 public class Robot extends TimedRobot {
-	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Robot.class.getName());
+	private static final java.util.logging.Logger logger = Logger.getLogger(Robot.class.getName());
 	public static ChasisDriveSubsystem m_ChasisTrainSubsystem;
 	public static OI m_oi;
 

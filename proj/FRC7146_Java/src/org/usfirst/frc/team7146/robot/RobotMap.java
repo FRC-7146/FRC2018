@@ -7,7 +7,10 @@
 
 package org.usfirst.frc.team7146.robot;
 
-import org.apache.logging.log4j.LogManager;
+import java.util.logging.Logger;
+
+import edu.wpi.first.wpilibj.Joystick.AxisType;
+
 
 /**
  * The RobotMap is a mapping from the ports sensors and actuators are wired into
@@ -17,7 +20,8 @@ import org.apache.logging.log4j.LogManager;
  */
 public class RobotMap {
 
-	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(RobotMap.class.getName());
+	private static final java.util.logging.Logger logger = Logger.getLogger(RobotMap.class.getName());
+
 	public static class MOTOR {
 		/*
 		 * DifferentialDrive Motor Group Port Number, now using two set of spark
