@@ -27,17 +27,25 @@ public class OI {
 
 	public Joystick mJoystick1 = new Joystick(0);
 	public Button mXboxBtnA = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_A),
-			mBtn2 = new JoystickButton(mJoystick1, 2), mBtn3 = new JoystickButton(mJoystick1, 3),
-			mBtn4 = new JoystickButton(mJoystick1, 4), mBtn5 = new JoystickButton(mJoystick1, 5),
-			mBtn6 = new JoystickButton(mJoystick1, 6), mBtn7 = new JoystickButton(mJoystick1, 7),
-			mBtn8 = new JoystickButton(mJoystick1, 8);
+			mXboxBtnB = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_B),
+			mXboxBtnX = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_X),
+			mXboxBtnY = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_Y),
+			mBtn5 = new JoystickButton(mJoystick1, 5), mBtn6 = new JoystickButton(mJoystick1, 6),
+			mBtn7 = new JoystickButton(mJoystick1, 7), mBtn8 = new JoystickButton(mJoystick1, 8);
 	public Gyro mGyro = new AnalogGyro(0);// TODO: TEST
 	// TODO: ACCELERATEMETER
 
 	public OI() {
+	}
+
+	public void mapOI() {
+		EmergencyStopCommand mEmergencyStopCommand = new EmergencyStopCommand();
+		mXboxBtnB.whileHeld(mEmergencyStopCommand);
+
 		/* Possible btn binding */
 		// mBtn.whenPressed(new ExampleCommand());
 		// mBtn.whileHeld(new ExampleCommand());
 		// mBtn.whenReleased(new ExampleCommand());
+
 	}
 }

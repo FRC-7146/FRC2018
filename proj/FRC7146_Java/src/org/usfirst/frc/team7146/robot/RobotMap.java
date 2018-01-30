@@ -9,9 +9,6 @@ package org.usfirst.frc.team7146.robot;
 
 import java.util.logging.Logger;
 
-import edu.wpi.first.wpilibj.Joystick.AxisType;
-
-
 /**
  * The RobotMap is a mapping from the ports sensors and actuators are wired into
  * to a variable name. This provides flexibility changing wiring, makes checking
@@ -36,19 +33,21 @@ public class RobotMap {
 		 * 
 		 * Do not raise more than 1
 		 */
-		public static double TELE_LEFT_SPEED_FACTOR = 0.7;
-		public static double TELE_RIGHT_SPEED_FACTOR = 0.7;
+		public static double TELE_LEFT_SPEED_FACTOR = 0.1;
+		public static double TELE_RIGHT_SPEED_FACTOR = 0.1;
 	}
 
 	public static class JOYSTICK {
 		// TODO: Reference only
-		public static final int NUM_XBOX_A = 1;
-		public static final int NUM_XBOX_B = 2;
-		public static final int NUM_XBOX_X = 3;
+		public static final int NUM_XBOX_X = 1;
+		public static final int NUM_XBOX_A = 2;
+		public static final int NUM_XBOX_B = 3;
 		public static final int NUM_XBOX_Y = 4;
-		public static final int RcLiftUpDownAxis = 5;//TODO: FIND OUT
-		public static final int XboxRightBumper = 6;//TODO: FIND OUT
-		public static final int NUM_XBOX_LEFT_STICK_BTN= 9;
+		public static final int NUM_XBOX_LB = 5;
+		public static final int NUM_XBOX_RB = 6;
+		public static final int NUM_XBOX_LT = 7;
+		public static final int NUM_XBOX_RT = 8;
+		public static final int NUM_XBOX_LEFT_STICK_BTN = 9;
 		public static final int NUM_XBOX_RIGHT_STICK_BTN = 10;
 	}
 

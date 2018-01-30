@@ -7,12 +7,14 @@
 
 package org.usfirst.frc.team7146.robot.subsystems;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import java.util.logging.Logger;
+
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.RobotMap;
+import org.usfirst.frc.team7146.robot.commands.TeleopArcadeDriveCommand;
 import org.usfirst.frc.team7146.robot.commands.TeleopTankDriveCommand;
 
+import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
@@ -20,24 +22,27 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 public class ChasisDriveSubsystem extends PIDSubsystem {
-	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ChasisDriveSubsystem.class.getName());
+	private static final Logger logger = Logger.getLogger(ChasisDriveSubsystem.class.getName());
 
 	Spark mLeftMotor = new Spark(RobotMap.MOTOR.LEFT_MOTOR_GROUP);
 	Spark mRightMotor = new Spark(RobotMap.MOTOR.RIGHT_MOTOR_GROUP);
 	DifferentialDrive mDifferentialDrive = new DifferentialDrive(mLeftMotor, mRightMotor);
 	Gyro mGyro = Robot.m_oi.mGyro;// TODO: TEST
+	// AnalogAccelerometer mAccelerometer = new AnalogAccelerometer(0);// TODO: TEST
 
 	public ChasisDriveSubsystem(double p, double i, double d) {
 		super(p, i, d);
 		setAbsoluteTolerance(0.05);
 		getPIDController().setContinuous(false);
 
-		mGyro.calibrate();
+		logger.info("Calibrating gyro");
 		mGyro.reset();
+		mGyro.calibrate();
 	}
 
 	public void initDefaultCommand() {
-		setDefaultCommand(new TeleopTankDriveCommand());
+		// setDefaultCommand(new TeleopTankDriveCommand());
+		setDefaultCommand(new TeleopArcadeDriveCommand());
 	}
 
 	public void mDriveTank(Joystick j) {
@@ -48,10 +53,12 @@ public class ChasisDriveSubsystem extends PIDSubsystem {
 
 	public void mDriveArcade(double xSpeed, double zRot) {// TODO: TEST
 		// x: [-1,1]
-		mDifferentialDrive.arcadeDrive(xSpeed, zRot);
+		mDifferentialDrive.arcadeDrive(xSpeed * RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR,
+				zRot * RobotMap.MOTOR.TELE_RIGHT_SPEED_FACTOR);
 	}
 
 	public void stopDrive() {
+		logger.info("Chassis Drive stops");
 		mLeftMotor.stopMotor();
 		mRightMotor.stopMotor();
 	}
@@ -66,5 +73,10 @@ public class ChasisDriveSubsystem extends PIDSubsystem {
 	protected void usePIDOutput(double output) {
 		// TODO Use PID output
 
+	}
+
+	@Override
+	public void finalize() {
+		mGyro.free();
 	}
 }
