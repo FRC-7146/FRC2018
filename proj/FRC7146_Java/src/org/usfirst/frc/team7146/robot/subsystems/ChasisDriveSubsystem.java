@@ -12,8 +12,6 @@ import java.util.logging.Logger;
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.RobotMap;
 import org.usfirst.frc.team7146.robot.commands.TeleopArcadeDriveCommand;
-import org.usfirst.frc.team7146.robot.commands.TeleopTankDriveCommand;
-
 import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
@@ -24,20 +22,17 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 public class ChasisDriveSubsystem extends PIDSubsystem {
 	private static final Logger logger = Logger.getLogger(ChasisDriveSubsystem.class.getName());
 
-	Spark mLeftMotor = new Spark(RobotMap.MOTOR.LEFT_MOTOR_GROUP);
-	Spark mRightMotor = new Spark(RobotMap.MOTOR.RIGHT_MOTOR_GROUP);
-	DifferentialDrive mDifferentialDrive = new DifferentialDrive(mLeftMotor, mRightMotor);
+	Spark mLeftMotor = Robot.m_oi.mLeftMotor;
+	Spark mRightMotor = Robot.m_oi.mRightMotor;
+	DifferentialDrive mDifferentialDrive = Robot.m_oi.mDifferentialDrive;
 	Gyro mGyro = Robot.m_oi.mGyro;// TODO: TEST
-	// AnalogAccelerometer mAccelerometer = new AnalogAccelerometer(0);// TODO: TEST
+	AnalogAccelerometer mAccelerometer = Robot.m_oi.mAccelerometer;
 
 	public ChasisDriveSubsystem(double p, double i, double d) {
 		super(p, i, d);
 		setAbsoluteTolerance(0.05);
 		getPIDController().setContinuous(false);
 
-		logger.info("Calibrating gyro");
-		mGyro.reset();
-		mGyro.calibrate();
 	}
 
 	public void initDefaultCommand() {
@@ -72,7 +67,6 @@ public class ChasisDriveSubsystem extends PIDSubsystem {
 	@Override
 	protected void usePIDOutput(double output) {
 		// TODO Use PID output
-
 	}
 
 	@Override

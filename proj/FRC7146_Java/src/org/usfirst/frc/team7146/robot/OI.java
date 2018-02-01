@@ -7,14 +7,20 @@
 
 package org.usfirst.frc.team7146.robot;
 
+import java.util.HashMap;
 import java.util.logging.Logger;
 
+import org.usfirst.frc.team7146.robot.commands.EmergencyRecoverCommand;
 import org.usfirst.frc.team7146.robot.commands.EmergencyStopCommand;
 
+import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 /**
@@ -25,6 +31,10 @@ public class OI {
 
 	private static final Logger logger = Logger.getLogger(OI.class.getName());
 
+	public Spark mLeftMotor = new Spark(RobotMap.MOTOR.LEFT_MOTOR_GROUP);
+	public Spark mRightMotor = new Spark(RobotMap.MOTOR.RIGHT_MOTOR_GROUP);
+	public DifferentialDrive mDifferentialDrive = new DifferentialDrive(mLeftMotor, mRightMotor);
+
 	public Joystick mJoystick1 = new Joystick(0);
 	public Button mXboxBtnA = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_A),
 			mXboxBtnB = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_B),
@@ -32,15 +42,21 @@ public class OI {
 			mXboxBtnY = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_Y),
 			mBtn5 = new JoystickButton(mJoystick1, 5), mBtn6 = new JoystickButton(mJoystick1, 6),
 			mBtn7 = new JoystickButton(mJoystick1, 7), mBtn8 = new JoystickButton(mJoystick1, 8);
-	public Gyro mGyro = new AnalogGyro(0);// TODO: TEST
-	// TODO: ACCELERATEMETER
+
+	public Gyro mGyro = new AnalogGyro(1);// TODO: TEST
+	public AnalogAccelerometer mAccelerometer = new AnalogAccelerometer(5);// TODO: TEST, ACC
+
+	public HashMap<String, Command> mCommands = new HashMap<String, Command>();
 
 	public OI() {
 	}
 
 	public void mapOI() {
+		logger.info("OI map");
 		EmergencyStopCommand mEmergencyStopCommand = new EmergencyStopCommand();
 		mXboxBtnB.whileHeld(mEmergencyStopCommand);
+		EmergencyRecoverCommand mEmergencyRecoverCommand = new EmergencyRecoverCommand();
+		mXboxBtnB.whenReleased(mEmergencyRecoverCommand);
 
 		/* Possible btn binding */
 		// mBtn.whenPressed(new ExampleCommand());
