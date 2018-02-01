@@ -33,8 +33,8 @@ public class RobotMap {
 		 * 
 		 * Do not raise more than 1
 		 */
-		public static double TELE_LEFT_SPEED_FACTOR = 0.1;
-		public static double TELE_RIGHT_SPEED_FACTOR = 0.1;
+		public static double TELE_LEFT_SPEED_FACTOR = 0.7;
+		public static double TELE_RIGHT_SPEED_FACTOR = 0.7;
 	}
 
 	public static class JOYSTICK {
@@ -50,6 +50,12 @@ public class RobotMap {
 		public static final int NUM_XBOX_LEFT_STICK_BTN = 9;
 		public static final int NUM_XBOX_RIGHT_STICK_BTN = 10;
 	}
+
+	public enum STATUS {
+		STAT_AUTO, STAT_TELEOP, STAT_HALT, STAT_ERR
+	};
+
+	public static STATUS mStatus;
 
 	// If you are using multiple modules, make sure to define both the port
 	// number and the module. For example you with a rangefinder:

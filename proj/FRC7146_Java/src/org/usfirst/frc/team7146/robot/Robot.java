@@ -15,8 +15,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.logging.Logger;
 
+import org.usfirst.frc.team7146.robot.RobotMap.STATUS;
+import org.usfirst.frc.team7146.robot.commandGroups.AutonomousCommandGroup;
 import org.usfirst.frc.team7146.robot.commands.TeleopTankDriveCommand;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
+import org.usfirst.frc.team7146.robot.subsystems.GyroSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -27,7 +30,8 @@ import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
  */
 public class Robot extends TimedRobot {
 	private static final java.util.logging.Logger logger = Logger.getLogger(Robot.class.getName());
-	public static ChasisDriveSubsystem m_ChasisTrainSubsystem;
+	public static ChasisDriveSubsystem m_ChasisDriveSubsystem;
+	public static GyroSubsystem m_GyroSubsystem;
 	public static OI m_oi;
 
 	Command m_autonomousCommand;
@@ -40,12 +44,12 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		m_oi = new OI();
-		m_ChasisTrainSubsystem = new ChasisDriveSubsystem(RobotMap.MOTOR.MOTOR_PID[0], RobotMap.MOTOR.MOTOR_PID[1],
+		m_ChasisDriveSubsystem = new ChasisDriveSubsystem(RobotMap.MOTOR.MOTOR_PID[0], RobotMap.MOTOR.MOTOR_PID[1],
 				RobotMap.MOTOR.MOTOR_PID[2]);
-		m_chooser.addDefault("Default Auto", new TeleopTankDriveCommand());
-		// chooser.addObject("My Auto", new MyAutoCommand());
+		m_GyroSubsystem = new GyroSubsystem();
 		SmartDashboard.putData("Auto mode", m_chooser);
 		m_oi.mapOI();// execute at the end to make sure all other subsystems initialized
+		// chooser.addObject("My Auto", new MyAutoCommand());
 	}
 
 	/**
@@ -55,7 +59,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void disabledInit() {
-
+		RobotMap.mStatus = STATUS.STAT_HALT;
 	}
 
 	@Override
@@ -79,22 +83,19 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		m_autonomousCommand = m_chooser.getSelected();
 
+		RobotMap.mStatus = STATUS.STAT_AUTO;
+		if (m_autonomousCommand != null) {
+			m_autonomousCommand.start();
+		}
 		/*
 		 * String autoSelected = SmartDashboard.getString("Auto Selector", "Default");
 		 * switch(autoSelected) { case "My Auto": autonomousCommand = new
 		 * MyAutoCommand(); break; case "Default Auto": default: autonomousCommand = new
 		 * ExampleCommand(); break; }
 		 */
-
 		// schedule the autonomous command (example)
-		if (m_autonomousCommand != null) {
-			m_autonomousCommand.start();
-		}
 	}
 
-	/**
-	 * This function is called periodically during autonomous.
-	 */
 	@Override
 	public void autonomousPeriodic() {
 		Scheduler.getInstance().run();
@@ -102,26 +103,17 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
-		// This makes sure that the autonomous stops running when
-		// teleop starts running. If you want the autonomous to
-		// continue until interrupted by another command, remove
-		// this line or comment it out.
+		RobotMap.mStatus = STATUS.STAT_TELEOP;
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
 	}
 
-	/**
-	 * This function is called periodically during operator control.
-	 */
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
 	}
 
-	/**
-	 * This function is called periodically during test mode.
-	 */
 	@Override
 	public void testPeriodic() {
 	}

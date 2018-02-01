@@ -1,26 +1,24 @@
 package org.usfirst.frc.team7146.robot.commands;
 
+import java.util.EventListenerProxy;
 import java.util.logging.Logger;
 
-import javax.management.InstanceAlreadyExistsException;
-
-import org.usfirst.frc.team7146.robot.OI;
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class EmergencyStopCommand extends Command {
+public class EmergencyRecoverCommand extends Command {
 
-	private static final java.util.logging.Logger logger = Logger.getLogger(EmergencyStopCommand.class.getName());
+	private static final java.util.logging.Logger logger = Logger.getLogger(EmergencyRecoverCommand.class.getName());
 	public static Command instance;
 
-	public EmergencyStopCommand() {
-		super("EmergencyStopCommand");
+	public EmergencyRecoverCommand() {
+		super("EmergencyRecoverCommand");
 		requires(Robot.m_ChasisDriveSubsystem);
-		
+
 		logger.info("Instance created");
-		EmergencyStopCommand.instance = this;
+		EmergencyRecoverCommand.instance = this;
 		Robot.m_oi.mCommands.put(this.getName(), this);
 	}
 
@@ -29,17 +27,20 @@ public class EmergencyStopCommand extends Command {
 	protected void initialize() {
 	}
 
-	// Called repeatedly when this Command is scheduled to run
-	public double LEFT_FACTOR_BAK = RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR,
-			RIGHT_FACTOR_BAK = RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR;
-
 	@Override
 	protected void execute() {
-		RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR = 0;
-		RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR = 0;
-		logger.info("Emergency stop!");
+		if (EmergencyStopCommand.instance != null) {
+			logger.info("Recover");
+			RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR = ((EmergencyStopCommand) EmergencyStopCommand.instance).LEFT_FACTOR_BAK;
+			RobotMap.MOTOR.TELE_RIGHT_SPEED_FACTOR = ((EmergencyStopCommand) EmergencyStopCommand.instance).RIGHT_FACTOR_BAK;
+			EmergencyRecoverCommand.instance.cancel();
+			this.cancel();
+		} else {
+			logger.info("Failed to Recover: Can not find stop instance");
+			this.cancel();
+		}
 	}
-	
+
 	// Make this return true when this Command no longer needs to run execute()
 	@Override
 	protected boolean isFinished() {
@@ -50,19 +51,13 @@ public class EmergencyStopCommand extends Command {
 	@Override
 	protected void end() {
 		Robot.m_ChasisDriveSubsystem.stopDrive();
-		RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR = this.LEFT_FACTOR_BAK;
-		RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR = this.RIGHT_FACTOR_BAK;
 		logger.info("Instance destroyed");
-		EmergencyStopCommand.instance = null;
+		//EmergencyStopCommand.instance = null;
 		Robot.m_oi.mCommands.remove(this.getName());
 
 	}
 
 	// Called when another command which requires one or more of the same
 	// subsystems is scheduled to run
-	@Override
-	protected void interrupted() {
-		// end();
-	}
 
 }
