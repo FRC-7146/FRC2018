@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.command.Command;
@@ -31,8 +32,8 @@ public class OI {
 
 	private static final Logger logger = Logger.getLogger(OI.class.getName());
 
-	public Spark mLeftMotor = new Spark(RobotMap.MOTOR.LEFT_MOTOR_GROUP);
-	public Spark mRightMotor = new Spark(RobotMap.MOTOR.RIGHT_MOTOR_GROUP);
+	public SpeedController mLeftMotor = new Spark(RobotMap.MOTOR.LEFT_MOTOR_GROUP);
+	public SpeedController mRightMotor = new Spark(RobotMap.MOTOR.RIGHT_MOTOR_GROUP);
 	public DifferentialDrive mDifferentialDrive = new DifferentialDrive(mLeftMotor, mRightMotor);
 
 	public Joystick mJoystick1 = new Joystick(0);

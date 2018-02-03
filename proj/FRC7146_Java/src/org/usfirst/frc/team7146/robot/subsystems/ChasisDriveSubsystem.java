@@ -14,25 +14,91 @@ import org.usfirst.frc.team7146.robot.RobotMap;
 import org.usfirst.frc.team7146.robot.commands.TeleopArcadeDriveCommand;
 import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Spark;
-import edu.wpi.first.wpilibj.command.PIDSubsystem;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
+import edu.wpi.first.wpilibj.PIDSource;
+import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import io.github.d0048.NumPID;
 
-public class ChasisDriveSubsystem extends PIDSubsystem {
+public class ChasisDriveSubsystem extends Subsystem {
 	private static final Logger logger = Logger.getLogger(ChasisDriveSubsystem.class.getName());
 
-	Spark mLeftMotor = Robot.m_oi.mLeftMotor;
-	Spark mRightMotor = Robot.m_oi.mRightMotor;
+	public static enum CHASIS_MODE {
+		TANK, ARCADE
+	};
+
+	CHASIS_MODE mode;
+
+	SpeedController mLeftMotor = Robot.m_oi.mLeftMotor;
+	SpeedController mRightMotor = Robot.m_oi.mRightMotor;
 	DifferentialDrive mDifferentialDrive = Robot.m_oi.mDifferentialDrive;
+
 	Gyro mGyro = Robot.m_oi.mGyro;// TODO: TEST
 	AnalogAccelerometer mAccelerometer = Robot.m_oi.mAccelerometer;
 
-	public ChasisDriveSubsystem(double p, double i, double d) {
-		super(p, i, d);
-		setAbsoluteTolerance(0.05);
-		getPIDController().setContinuous(false);
+	// PID Speed Control
+	PIDController mPIDArcadeSpdCtler, mPIDArcadeAngCtler;// Arcade drive mode
+	// public double requestedSpd = 0, requestedAng = 0;
+	public double execSpd = 0, execAng = 0;
 
+	PIDController mPIDTankLeftCtler, mPIDTankRightCtler;// Tank drive mode
+	// public double requestedLeftSpd = 0, requestedRightSpd = 0;
+	public double execLeftSpd = 0, execRightSpd = 0;
+
+	/**
+	 * Either (arcade, spd_pid, ang_pid) Or (Tank, left_pid, right_pid)
+	 * 
+	 * @param mode
+	 * @param numPID1
+	 * @param numPID2
+	 */
+	public ChasisDriveSubsystem(CHASIS_MODE mode, NumPID numPID1, NumPID numPID2) {
+		super();
+		this.mode = mode;
+		// if (mode == CHASIS_MODE.ARCADE) {// Arcade mode pid
+		this.mPIDArcadeSpdCtler = new PIDController(numPID1.P, numPID1.I, numPID1.D, mAccelerometer, new PIDOutput() {
+			@Override
+			public void pidWrite(double output) {
+				execSpd = output;
+			}
+		});
+		this.mPIDArcadeSpdCtler.setAbsoluteTolerance(0.1);
+		this.mPIDArcadeSpdCtler.setInputRange(-1, 1);
+		this.mPIDArcadeSpdCtler.setOutputRange(-1, 1);
+		this.mPIDArcadeSpdCtler.enable();
+
+		/*
+		 * this.mPIDArcadeAngCtler = new PIDController(numPID2.P, numPID2.I, numPID2.D,
+		 * mGyro, new PIDOutput() {
+		 * 
+		 * @Override public void pidWrite(double output) { execAng = output; } });
+		 */
+		this.mPIDArcadeSpdCtler.setAbsoluteTolerance(0.1);
+		this.mPIDArcadeSpdCtler.setInputRange(-1, 1);
+		this.mPIDArcadeSpdCtler.setOutputRange(0, 360);
+		this.mPIDArcadeSpdCtler.setContinuous();
+		this.mPIDArcadeSpdCtler.enable();
+
+		// } else if (mode == CHASIS_MODE.TANK) {// Tank mode pid
+		this.mPIDTankLeftCtler = new PIDController(numPID1.P, numPID1.I, numPID1.D, mAccelerometer, mLeftMotor);// tank
+																												// left
+		this.mPIDTankLeftCtler.setAbsoluteTolerance(0.1);
+		this.mPIDTankLeftCtler.setInputRange(-1, 1);
+		this.mPIDTankLeftCtler.setOutputRange(0, 360);
+		this.mPIDTankLeftCtler.setContinuous();
+		this.mPIDTankLeftCtler.enable();
+
+		this.mPIDTankRightCtler = new PIDController(numPID2.P, numPID2.I, numPID2.D, mAccelerometer, mRightMotor);// tank
+																													// right
+		this.mPIDTankRightCtler.setAbsoluteTolerance(0.1);
+		this.mPIDTankRightCtler.setInputRange(-1, 1);
+		this.mPIDTankRightCtler.setOutputRange(0, 360);
+		this.mPIDTankRightCtler.setContinuous();
+		this.mPIDTankRightCtler.enable();
+		// }
 	}
 
 	public void initDefaultCommand() {
@@ -40,16 +106,36 @@ public class ChasisDriveSubsystem extends PIDSubsystem {
 		setDefaultCommand(new TeleopArcadeDriveCommand());
 	}
 
-	public void mDriveTank(Joystick j) {
+	public void mDriveTank(double l, double r) {
 		// x: [-1,1];y: [-1,1]
-		mDifferentialDrive.tankDrive(j.getY() * RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR,
-				j.getThrottle() * RobotMap.MOTOR.TELE_RIGHT_SPEED_FACTOR);
+		if (mode != CHASIS_MODE.TANK) {
+			logger.warning("This chasis is not init to tank mode!");
+			if (RobotMap.DEBUG) {
+				logger.warning("Ignoring tank drive cmd");
+				return;
+			}
+		}
+		mPIDTankLeftCtler.setSetpoint(l);
+		mPIDTankRightCtler.setSetpoint(r);
+		mDifferentialDrive.tankDrive(this.execLeftSpd * RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR, // TODO
+				this.execRightSpd * RobotMap.MOTOR.TELE_RIGHT_SPEED_FACTOR);
 	}
 
 	public void mDriveArcade(double xSpeed, double zRot) {// TODO: TEST
 		// x: [-1,1]
-		mDifferentialDrive.arcadeDrive(xSpeed * RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR,
-				zRot * RobotMap.MOTOR.TELE_RIGHT_SPEED_FACTOR);
+		if (mode != CHASIS_MODE.ARCADE) {
+			logger.warning("This chasis is not init to arcade mode!");
+			if (RobotMap.DEBUG) {
+				logger.warning("Ignoring arcade drive cmd");
+				return;
+			}
+		}
+		mPIDArcadeSpdCtler.setSetpoint(xSpeed);
+		// mPIDArcadeAngCtler.setSetpoint(zRot);
+		double angle = mGyro.getAngle() / 360 * 2 - 1; // Map into [1,-1]
+		zRot = (zRot + angle) * RobotMap.MOTOR.TELE_ANG_FACTOR;// TODO: regularized back to -1,1
+		mDifferentialDrive.arcadeDrive(this.execSpd * RobotMap.MOTOR.TELE_SPD_FACTOR,
+				zRot * RobotMap.MOTOR.TELE_ANG_FACTOR);
 	}
 
 	public void stopDrive() {
@@ -59,18 +145,15 @@ public class ChasisDriveSubsystem extends PIDSubsystem {
 	}
 
 	@Override
-	protected double returnPIDInput() {
-		// TODO Return PID offset
-		return 0;
-	}
-
-	@Override
-	protected void usePIDOutput(double output) {
-		// TODO Use PID output
-	}
-
-	@Override
 	public void finalize() {
 		mGyro.free();
+	}
+
+	private class PIDAngOutput implements PIDOutput {
+		@Override
+		public void pidWrite(double output) {
+			// TODO
+
+		}
 	}
 }

@@ -37,7 +37,7 @@ public class TeleopTankDriveCommand extends Command {
 	// Called repeatedly when this Command is scheduled to run
 	@Override
 	protected void execute() {
-		Robot.m_ChasisDriveSubsystem.mDriveTank(Robot.m_oi.mJoystick1);
+		Robot.m_ChasisDriveSubsystem.mDriveTank(Robot.m_oi.mJoystick1.getY(), Robot.m_oi.mJoystick1.getThrottle());
 	}
 
 	// Make this return true when this Command no longer needs to run execute()

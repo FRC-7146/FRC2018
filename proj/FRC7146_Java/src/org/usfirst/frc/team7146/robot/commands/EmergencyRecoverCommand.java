@@ -1,6 +1,5 @@
 package org.usfirst.frc.team7146.robot.commands;
 
-import java.util.EventListenerProxy;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.Robot;

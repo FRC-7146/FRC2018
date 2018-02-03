@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.RobotMap.STATUS;
-import org.usfirst.frc.team7146.robot.commandGroups.AutonomousCommandGroup;
-import org.usfirst.frc.team7146.robot.commands.TeleopTankDriveCommand;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 import org.usfirst.frc.team7146.robot.subsystems.GyroSubsystem;
 
@@ -44,8 +42,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		m_oi = new OI();
-		m_ChasisDriveSubsystem = new ChasisDriveSubsystem(RobotMap.MOTOR.MOTOR_PID[0], RobotMap.MOTOR.MOTOR_PID[1],
-				RobotMap.MOTOR.MOTOR_PID[2]);
+		m_ChasisDriveSubsystem = new ChasisDriveSubsystem(ChasisDriveSubsystem.CHASIS_MODE.ARCADE,
+				RobotMap.MOTOR.ARCADE_SPD_NUM_PID, RobotMap.MOTOR.ARCADE_ANG_NUM_PID);
 		m_GyroSubsystem = new GyroSubsystem();
 		SmartDashboard.putData("Auto mode", m_chooser);
 		m_oi.mapOI();// execute at the end to make sure all other subsystems initialized
@@ -98,7 +96,15 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		Scheduler.getInstance().run();
+		if (!RobotMap.mStatus.equals(STATUS.STAT_ERR))
+			Scheduler.getInstance().run();
+		else {
+			logger.warning("Err in Periodic");
+			if (!RobotMap.DEBUG) {// Stop running for debug
+				logger.warning("Ignoring");
+				Scheduler.getInstance().run();
+			}
+		}
 	}
 
 	@Override
@@ -111,7 +117,15 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		Scheduler.getInstance().run();
+		if (!RobotMap.mStatus.equals(STATUS.STAT_ERR))
+			Scheduler.getInstance().run();
+		else {
+			logger.warning("Err in Teleop");
+			if (!RobotMap.DEBUG) {// Stop running for debug
+				logger.warning("Ignoring");
+				Scheduler.getInstance().run();
+			}
+		}
 	}
 
 	@Override

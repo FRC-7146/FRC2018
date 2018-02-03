@@ -2,9 +2,6 @@ package org.usfirst.frc.team7146.robot.commands;
 
 import java.util.logging.Logger;
 
-import javax.management.InstanceAlreadyExistsException;
-
-import org.usfirst.frc.team7146.robot.OI;
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.RobotMap;
 
