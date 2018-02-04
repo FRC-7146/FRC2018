@@ -31,10 +31,11 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 		if (!Robot.cmdCanRun(this)) {
 			logger.info("drive override");
 			return;
-			}
+		}
 		double speed = Robot.m_oi.mJoystick1.getRawAxis(3);// Right x
-		double ang = speed < 0 ? Robot.m_oi.mJoystick1.getTwist() : -Robot.m_oi.mJoystick1.getTwist();
-		Robot.m_ChasisDriveSubsystem.mDriveArcade(speed, ang);
+		double ang = Robot.m_oi.mJoystick1.getTwist();
+		Robot.m_ChasisDriveSubsystem.requestedAng=ang*100;
+		Robot.m_ChasisDriveSubsystem.mDriveArcade(speed, Robot.m_ChasisDriveSubsystem.execAng);
 
 	}
 

@@ -63,7 +63,9 @@ public class OI {
 		mXboxBtnB.whileHeld(mEmergencyStopCommand);
 		EmergencyRecoverCommand mEmergencyRecoverCommand = new EmergencyRecoverCommand();
 		mXboxBtnB.whenReleased(mEmergencyRecoverCommand);
-		StraightDriveCommand mStraightDriveCommand = new StraightDriveCommand(0.9);
-		mXboxBtnY.whileActive(mStraightDriveCommand);
+		StraightDriveCommand mStraightDriveFCommand = new StraightDriveCommand(0.9);
+		mXboxBtnY.whileActive(mStraightDriveFCommand);
+		StraightDriveCommand mStraightDriveBCommand = new StraightDriveCommand(-0.9);
+		mXboxBtnA.whileActive(mStraightDriveBCommand);
 	}
 }

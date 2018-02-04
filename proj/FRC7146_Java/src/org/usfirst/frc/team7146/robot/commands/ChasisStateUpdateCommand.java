@@ -4,47 +4,45 @@ import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.RobotMap;
+import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
 import edu.wpi.first.wpilibj.command.Command;
-import io.github.d0048.Utils;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 
-public class StraightDriveCommand extends CmdBase {
-	private static final java.util.logging.Logger logger = Logger.getLogger(StraightDriveCommand.class.getName());
+public class ChasisStateUpdateCommand extends CmdBase {
+
+	private static final java.util.logging.Logger logger = Logger.getLogger(ChasisStateUpdateCommand.class.getName());
 	public static Command instance;
-	public static boolean StraightDriveDebug = true;
 
-	private double spd = 0, ang = 0, tol = 3;
+	public ChasisDriveSubsystem mChasis = Robot.m_ChasisDriveSubsystem;
+	public Gyro mGyro = Robot.m_GyroSubsystem.mGyro;
 
-	public StraightDriveCommand(double spd) {
-		super("StraightDriveCommand", 99);
+	public ChasisStateUpdateCommand() {
+		super("ChasisStateUpdateCommand", 99);
 		requires(Robot.m_ChasisDriveSubsystem);
 		requires(Robot.m_GyroSubsystem);
 
 		logger.info("Instance created");
-		StraightDriveCommand.instance = this;
+		ChasisStateUpdateCommand.instance = this;
 		Robot.m_oi.mCommands.put(this.getName(), this);
-
-		this.spd = spd;
 	}
 
 	// Called just before this Command runs the first time
 	@Override
 	protected void initialize() {
-		this.ang = Robot.m_GyroSubsystem.mGyro.getAngle();
-		if (StraightDriveDebug)
-			logger.info("Angle marked");
 	}
 
-	// Called repeatedly when this Command is scheduled to run
 	@Override
 	protected void execute() {
 		if (!Robot.cmdCanRun(this))
 			return;
-		double angle = Utils.AngleOffsetCal(Robot.m_GyroSubsystem.mGyro.getAngle(), this.ang);
-		angle = Utils.Ang2tanh(angle, this.tol);
-		Robot.m_ChasisDriveSubsystem.mDriveArcade(this.spd, angle);
-		if (StraightDriveDebug)
-			logger.info("Straight Drive: \nangle: " + angle);
+		update();
+		mChasis.mDriveArcade(0, mChasis.execAng);
+
+	}
+
+	protected void update() {
+		this.mChasis.actualAng = mGyro.getAngle();
 	}
 
 	// Make this return true when this Command no longer needs to run execute()
@@ -57,15 +55,10 @@ public class StraightDriveCommand extends CmdBase {
 	@Override
 	protected void end() {
 		Robot.m_ChasisDriveSubsystem.stopDrive();
-		logger.info("Instance destroyed");
 		StraightDriveCommand.instance = null;
+		logger.info("Instance destroyed");
 	}
 
 	// Called when another command which requires one or more of the same
 	// subsystems is scheduled to run
-	@Override
-	protected void interrupted() {
-		end();
-	}
-
 }
