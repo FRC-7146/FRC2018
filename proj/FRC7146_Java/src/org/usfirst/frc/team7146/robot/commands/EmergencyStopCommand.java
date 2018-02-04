@@ -6,16 +6,17 @@ import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.Scheduler;
 
-public class EmergencyStopCommand extends Command {
+public class EmergencyStopCommand extends CmdBase {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(EmergencyStopCommand.class.getName());
 	public static Command instance;
 
 	public EmergencyStopCommand() {
-		super("EmergencyStopCommand");
+		super("EmergencyStopCommand", -1000);
 		requires(Robot.m_ChasisDriveSubsystem);
-		
+
 		logger.info("Instance created");
 		EmergencyStopCommand.instance = this;
 		Robot.m_oi.mCommands.put(this.getName(), this);
@@ -28,19 +29,22 @@ public class EmergencyStopCommand extends Command {
 
 	// Called repeatedly when this Command is scheduled to run
 	public double LEFT_FACTOR_BAK = RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR,
-			RIGHT_FACTOR_BAK = RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR;
+			RIGHT_FACTOR_BAK = RobotMap.MOTOR.TELE_RIGHT_SPEED_FACTOR, SPD_FACTOR_BAK = RobotMap.MOTOR.TELE_SPD_FACTOR,
+			ANG_FACTOR_BAK = RobotMap.MOTOR.TELE_ANG_FACTOR;
 
 	@Override
 	protected void execute() {
 		RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR = 0;
-		RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR = 0;
+		RobotMap.MOTOR.TELE_RIGHT_SPEED_FACTOR = 0;
+		RobotMap.MOTOR.TELE_SPD_FACTOR = 0;
+		RobotMap.MOTOR.TELE_ANG_FACTOR = 0;
 		logger.info("Emergency stop!");
 	}
-	
+
 	// Make this return true when this Command no longer needs to run execute()
 	@Override
 	protected boolean isFinished() {
-		return false;
+		return true;
 	}
 
 	// Called once after isFinished returns true
@@ -49,10 +53,10 @@ public class EmergencyStopCommand extends Command {
 		Robot.m_ChasisDriveSubsystem.stopDrive();
 		RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR = this.LEFT_FACTOR_BAK;
 		RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR = this.RIGHT_FACTOR_BAK;
+		RobotMap.MOTOR.TELE_SPD_FACTOR = this.SPD_FACTOR_BAK;
+		RobotMap.MOTOR.TELE_ANG_FACTOR = this.ANG_FACTOR_BAK;
 		logger.info("Instance destroyed");
 		EmergencyStopCommand.instance = null;
-		Robot.m_oi.mCommands.remove(this.getName());
-
 	}
 
 	// Called when another command which requires one or more of the same

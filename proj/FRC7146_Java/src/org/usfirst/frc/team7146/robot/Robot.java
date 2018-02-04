@@ -13,9 +13,12 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.RobotMap.STATUS;
+import org.usfirst.frc.team7146.robot.commands.CmdBase;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 import org.usfirst.frc.team7146.robot.subsystems.GyroSubsystem;
 
@@ -130,5 +133,23 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void testPeriodic() {
+		if (!RobotMap.mStatus.equals(STATUS.STAT_ERR))
+			Scheduler.getInstance().run();
+		else {
+			logger.warning("Err in Test");
+			if (!RobotMap.DEBUG) {// Stop running for debug
+				logger.warning("Ignoring");
+				Scheduler.getInstance().run();
+			}
+		}
+	}
+
+	public static boolean cmdCanRun(CmdBase cmd) {
+		for (String k : m_oi.mCommands.keySet()) {
+			if (m_oi.mCommands.get(k).priority < cmd.priority && m_oi.mCommands.get(k).isRunning()) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

@@ -21,12 +21,11 @@ public class TeleopTankDriveCommand extends Command {
 	public static Command instance;
 
 	public TeleopTankDriveCommand() {
-		super("TeleopTankDriveCommand");
+		super("TeleopTankDriveCommand", 100);
 		requires(Robot.m_ChasisDriveSubsystem);
 
 		logger.info("Instance created");
 		TeleopTankDriveCommand.instance = this;
-		Robot.m_oi.mCommands.put(this.getName(), this);
 	}
 
 	// Called just before this Command runs the first time
@@ -52,7 +51,6 @@ public class TeleopTankDriveCommand extends Command {
 		Robot.m_ChasisDriveSubsystem.stopDrive();
 		logger.info("Instance destroyed");
 		TeleopTankDriveCommand.instance = null;
-		Robot.m_oi.mCommands.remove(this.getName());
 	}
 
 	// Called when another command which requires one or more of the same

@@ -20,6 +20,7 @@ import io.github.d0048.NumPID;
 public class RobotMap {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(RobotMap.class.getName());
+	public static boolean DEBUG = true;
 
 	public static class MOTOR {
 		/*
@@ -32,14 +33,14 @@ public class RobotMap {
 		public static final NumPID TANK_NUM_PID = new NumPID(2, 0, 0), ARCADE_SPD_NUM_PID = TANK_NUM_PID,
 				ARCADE_ANG_NUM_PID = new NumPID(2, 0, 0), LIFT_NUM_PID = new NumPID(2, 0, 0);
 		/*
-		 * Teleop TankDrive Speed Factor
+		 * Motor Speed Factor
 		 * 
 		 * Do not raise more than 1
 		 */
 		public static double TELE_LEFT_SPEED_FACTOR = 0.7;
 		public static double TELE_RIGHT_SPEED_FACTOR = 0.7;
 		public static double TELE_SPD_FACTOR = 0.7;
-		public static double TELE_ANG_FACTOR = 0.7;
+		public static double TELE_ANG_FACTOR = 0.5;
 	}
 
 	public static class JOYSTICK {
@@ -55,8 +56,6 @@ public class RobotMap {
 		public static final int NUM_XBOX_LEFT_STICK_BTN = 9;
 		public static final int NUM_XBOX_RIGHT_STICK_BTN = 10;
 	}
-
-	public static boolean DEBUG = true;
 
 	public enum STATUS {
 		STAT_AUTO, STAT_TELEOP, STAT_HALT, STAT_ERR

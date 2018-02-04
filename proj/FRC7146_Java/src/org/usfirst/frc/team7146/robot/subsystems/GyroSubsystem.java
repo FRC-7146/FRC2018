@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 public class GyroSubsystem extends Subsystem {
 	private static final Logger logger = Logger.getLogger(GyroSubsystem.class.getName());
 
-	Gyro mGyro = Robot.m_oi.mGyro;
+	public Gyro mGyro = Robot.m_oi.mGyro;
 
 	public GyroSubsystem() {
 		super("GyroSubsystem");

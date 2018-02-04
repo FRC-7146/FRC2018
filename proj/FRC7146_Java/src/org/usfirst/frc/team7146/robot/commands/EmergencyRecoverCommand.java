@@ -7,13 +7,13 @@ import org.usfirst.frc.team7146.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class EmergencyRecoverCommand extends Command {
+public class EmergencyRecoverCommand extends CmdBase {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(EmergencyRecoverCommand.class.getName());
 	public static Command instance;
 
 	public EmergencyRecoverCommand() {
-		super("EmergencyRecoverCommand");
+		super("EmergencyRecoverCommand", -1000);
 		requires(Robot.m_ChasisDriveSubsystem);
 
 		logger.info("Instance created");
@@ -51,9 +51,7 @@ public class EmergencyRecoverCommand extends Command {
 	protected void end() {
 		Robot.m_ChasisDriveSubsystem.stopDrive();
 		logger.info("Instance destroyed");
-		//EmergencyStopCommand.instance = null;
-		Robot.m_oi.mCommands.remove(this.getName());
-
+		// EmergencyStopCommand.instance = null;
 	}
 
 	// Called when another command which requires one or more of the same
