@@ -19,7 +19,10 @@ import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.RobotMap.STATUS;
 import org.usfirst.frc.team7146.robot.commands.CmdBase;
+import org.usfirst.frc.team7146.robot.commands.TeleopArcadeDriveCommand;
+import org.usfirst.frc.team7146.robot.commands.TeleopTankDriveCommand;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
+import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem.CHASIS_MODE;
 import org.usfirst.frc.team7146.robot.subsystems.GyroSubsystem;
 
 /**
@@ -115,6 +118,11 @@ public class Robot extends TimedRobot {
 		RobotMap.mStatus = STATUS.STAT_TELEOP;
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
+		}
+		if (m_ChasisDriveSubsystem.mode == CHASIS_MODE.ARCADE) {
+			new TeleopArcadeDriveCommand().start();
+		} else if (m_ChasisDriveSubsystem.mode == CHASIS_MODE.ARCADE) {
+			new TeleopTankDriveCommand().start();
 		}
 	}
 

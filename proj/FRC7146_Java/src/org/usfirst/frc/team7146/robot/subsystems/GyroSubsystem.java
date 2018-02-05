@@ -5,12 +5,14 @@ import java.util.logging.Logger;
 import org.usfirst.frc.team7146.robot.Robot;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 public class GyroSubsystem extends Subsystem {
 	private static final Logger logger = Logger.getLogger(GyroSubsystem.class.getName());
 
 	public Gyro mGyro = Robot.m_oi.mGyro;
+	public Accelerometer mAccel= Robot.m_oi.mAccelerometer;
 
 	public GyroSubsystem() {
 		super("GyroSubsystem");

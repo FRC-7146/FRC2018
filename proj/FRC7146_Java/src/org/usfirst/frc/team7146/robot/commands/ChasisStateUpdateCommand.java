@@ -36,13 +36,13 @@ public class ChasisStateUpdateCommand extends CmdBase {
 	protected void execute() {
 		if (!Robot.cmdCanRun(this))
 			return;
-		update();
-		mChasis.mDriveArcade(0, mChasis.execAng);
+		update_actual();
+		mChasis.mDriveArcade(mChasis.requestedSpd, mChasis.requestedAng);
 
 	}
 
-	protected void update() {
-		this.mChasis.actualAng = mGyro.getAngle();
+	protected void update_actual() {
+		mChasis.actualAng = mGyro.getAngle();
 	}
 
 	// Make this return true when this Command no longer needs to run execute()

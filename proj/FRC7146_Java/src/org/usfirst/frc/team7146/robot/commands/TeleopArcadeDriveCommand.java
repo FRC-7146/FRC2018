@@ -34,9 +34,8 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 		}
 		double speed = Robot.m_oi.mJoystick1.getRawAxis(3);// Right x
 		double ang = Robot.m_oi.mJoystick1.getTwist();
-		Robot.m_ChasisDriveSubsystem.requestedAng=ang*100;
-		Robot.m_ChasisDriveSubsystem.mDriveArcade(speed, Robot.m_ChasisDriveSubsystem.execAng);
-
+		Robot.m_ChasisDriveSubsystem.requestedSpd = speed;
+		Robot.m_ChasisDriveSubsystem.requestedAng = ang * 100;
 	}
 
 	// Make this return true when this Command no longer needs to run execute()

@@ -15,9 +15,13 @@ import org.usfirst.frc.team7146.robot.commands.EmergencyRecoverCommand;
 import org.usfirst.frc.team7146.robot.commands.EmergencyStopCommand;
 import org.usfirst.frc.team7146.robot.commands.StraightDriveCommand;
 
+import edu.wpi.first.wpilibj.ADXL345_I2C;
+import edu.wpi.first.wpilibj.ADXL345_SPI;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Spark;
@@ -26,6 +30,7 @@ import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 /**
@@ -48,8 +53,10 @@ public class OI {
 			mBtn5 = new JoystickButton(mJoystick1, 5), mBtn6 = new JoystickButton(mJoystick1, 6),
 			mBtn7 = new JoystickButton(mJoystick1, 7), mBtn8 = new JoystickButton(mJoystick1, 8);
 
-	public ADXRS450_Gyro mGyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);// TODO: TEST
-	public AnalogAccelerometer mAccelerometer = new AnalogAccelerometer(5);// TODO: TEST, ACC
+	public ADXRS450_Gyro mGyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
+	// public Accelerometer mAccelerometer = new ADXL345_I2C(I2C.Port.kOnboard,
+	// Accelerometer.Range.k4G, 0x3A);
+	public Accelerometer mAccelerometer = new BuiltInAccelerometer(Accelerometer.Range.k4G);// TODO: TEST, ACC
 
 	public HashMap<String, CmdBase> mCommands = new HashMap<String, CmdBase>();
 
