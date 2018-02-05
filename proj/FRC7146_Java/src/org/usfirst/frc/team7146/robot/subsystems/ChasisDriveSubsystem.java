@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 
+import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.RobotMap;
 import org.usfirst.frc.team7146.robot.commands.ChasisStateUpdateCommand;
@@ -28,12 +29,13 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import io.github.d0048.NumPID;
 import io.github.d0048.Utils;
 
 public class ChasisDriveSubsystem extends Subsystem {
 	private static final Logger logger = Logger.getLogger(ChasisDriveSubsystem.class.getName());
-	public static boolean CHASIS_DEBUG = false;
+	public static boolean CHASIS_DEBUG = true;
 
 	public static enum CHASIS_MODE {
 		TANK, ARCADE
@@ -52,10 +54,10 @@ public class ChasisDriveSubsystem extends Subsystem {
 	/**
 	 * requested: src|requested: dst|actual: current
 	 */
-	PIDController mPIDArcadeSpdCtler, mPIDArcadeAngCtler;// Arcade drive mode
+	PIDController mPIDArcadeAngCtler;// Arcade drive mode
 	public double requestedSpd = 0, requestedAng = 0;
-	public double execSpd = 0, execAng = 0;
-	public double actualSpd = 0, actualAng = 0;
+	public double execAng = 0;
+	public double actualAng = 0;
 
 	/**
 	 * Either (arcade, spd_pid, ang_pid) Or (Tank, left_pid, right_pid) !!!Ang pid
@@ -68,44 +70,14 @@ public class ChasisDriveSubsystem extends Subsystem {
 	public ChasisDriveSubsystem(CHASIS_MODE mode, NumPID numPID1, NumPID numPID2) {
 		super();
 		this.mode = mode;
+		this.mDifferentialDrive.setSafetyEnabled(false);
 		logger.info("CHasis mode: " + (mode.equals(CHASIS_MODE.ARCADE) ? "Arcade" : "Tank"));
 		if (mode == CHASIS_MODE.ARCADE) {// Arcade mode pid
-
-			this.mPIDArcadeSpdCtler = new PIDController(numPID1.P, numPID1.I, numPID1.D, new PIDSource() {
-
-				PIDSourceType pidSourceType;
-
-				@Override
-				public void setPIDSourceType(PIDSourceType pidSource) {
-					this.pidSourceType = pidSource;
-				}
-
-				@Override
-				public double pidGet() {
-					return actualSpd;
-				}
-
-				@Override
-				public PIDSourceType getPIDSourceType() {
-					return this.pidSourceType;
-				}
-			},
-
-					new PIDOutput() {
-						@Override
-						public void pidWrite(double output) {
-							execSpd = output;
-						}
-					});
-			this.mPIDArcadeSpdCtler.setAbsoluteTolerance(0.5);
-			this.mPIDArcadeSpdCtler.setInputRange(-1, 1);
-			this.mPIDArcadeSpdCtler.setOutputRange(-1, 1);
-			// this.mPIDArcadeSpdCtler.enable(); TODO: set
 			// Arcade angle
 			// pid--------------------------------------------------------------
 			this.mPIDArcadeAngCtler = new PIDController(numPID2.P, numPID2.I, numPID2.D, new PIDSource() {
 
-				PIDSourceType pidSourceType;
+				PIDSourceType pidSourceType = PIDSourceType.kDisplacement;
 
 				@Override
 				public void setPIDSourceType(PIDSourceType pidSource) {
@@ -128,8 +100,8 @@ public class ChasisDriveSubsystem extends Subsystem {
 					execAng = output;
 				}
 			});
-			this.mPIDArcadeAngCtler.setAbsoluteTolerance(0.5);
-			this.mPIDArcadeAngCtler.setInputRange(0, 360);
+			this.mPIDArcadeAngCtler.setAbsoluteTolerance(10);
+			this.mPIDArcadeAngCtler.setInputRange(-180, 180);
 			this.mPIDArcadeAngCtler.setOutputRange(-1, 1);
 			this.mPIDArcadeAngCtler.setContinuous();
 			this.mPIDArcadeAngCtler.enable();
@@ -139,7 +111,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 	}
 
 	public void initDefaultCommand() {
-		this.setDefaultCommand(new ChasisStateUpdateCommand());
+		this.setDefaultCommand(new TeleopArcadeDriveCommand());
 	}
 
 	public void mDriveTank(double l, double r) {
@@ -164,14 +136,57 @@ public class ChasisDriveSubsystem extends Subsystem {
 				return;
 			}
 		}
-		mPIDArcadeSpdCtler.setSetpoint(xSpeed);
-		mPIDArcadeAngCtler.setSetpoint(this.requestedAng);
-		mDifferentialDrive.arcadeDrive(xSpeed * RobotMap.MOTOR.TELE_SPD_FACTOR, // TODO: set
-				this.execAng * RobotMap.MOTOR.TELE_ANG_FACTOR);
 		if (CHASIS_DEBUG) {
-			logger.info("Angle: " + mGyro.getAngle());
-			logger.info("ArcadeDrive:" + xSpeed * RobotMap.MOTOR.TELE_SPD_FACTOR + ", "
-					+ this.execAng * RobotMap.MOTOR.TELE_ANG_FACTOR);
+			logger.info("ArcadeDrive:" + xSpeed + ", " + zRot);
+			if (Math.abs(zRot) > 1 || Math.abs(xSpeed) > 1) {
+				logger.warning("Threadhold reached, cancelled");
+				return;
+			}
+		}
+		if (Robot.EMERGENCY_HALT) {
+			logger.warning("Emergency stop detected thus cancel");
+			return;
+		}
+		mDifferentialDrive.arcadeDrive(xSpeed * RobotMap.MOTOR.TELE_SPD_FACTOR, // TODO: set
+				zRot * RobotMap.MOTOR.TELE_ANG_FACTOR);
+	}
+
+	public void mArcadeRequest(double spd, double rot) {
+		this.requestedSpd = spd;
+		if (this.requestedAng + rot > 180) {
+			this.requestedAng = -180 + (this.requestedAng + rot - 180);
+		} else if (this.requestedAng + rot < 180) {
+			this.requestedAng = 180 + (this.requestedAng + rot + 180);
+		} else {
+
+			requestedAng += rot;
+		}
+		mPIDArcadeAngCtler.setSetpoint(this.requestedAng);
+		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
+		SmartDashboard.putNumber("Requested speed", requestedSpd);
+		if (CHASIS_DEBUG) {
+			logger.info("Got an request of" + spd + ", " + rot);
+		}
+	}
+
+	public void mArcadeForceDrive(double spd, double rot) {
+		resetAngleState();
+		this.mDriveArcade(spd, rot);
+		resetAngleState();
+	}
+
+	public void mArcadeDispatch() {
+		this.mDriveArcade(this.requestedSpd, this.execAng);
+		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
+		SmartDashboard.putNumber("Requested speed", requestedSpd);
+		SmartDashboard.putNumber("Exec Angle: ", execAng);
+	}
+
+	public void resetAngleState() {
+		this.requestedAng = Robot.m_GyroSubsystem.getAngle();
+		this.mPIDArcadeAngCtler.setSetpoint(Robot.m_GyroSubsystem.getAngle());
+		if (CHASIS_DEBUG) {
+			logger.info("Chasis angle reset");
 		}
 	}
 

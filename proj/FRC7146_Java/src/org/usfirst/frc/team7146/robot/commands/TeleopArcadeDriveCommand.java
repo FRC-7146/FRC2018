@@ -4,12 +4,11 @@ import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.Robot;
 
-import edu.wpi.first.wpilibj.command.Command;
-
 public class TeleopArcadeDriveCommand extends CmdBase {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(TeleopArcadeDriveCommand.class.getName());
-	public static Command instance;
+	public static CmdBase instance;
+	public static boolean TeleArcadeDriveDebug = false;
 
 	public TeleopArcadeDriveCommand() {
 		super("TeleopArcadeDriveCommand", 100);
@@ -25,6 +24,8 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 	protected void initialize() {
 	}
 
+	boolean isReturning = false;
+
 	// Called repeatedly when this Command is scheduled to run
 	@Override
 	protected void execute() {
@@ -34,8 +35,20 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 		}
 		double speed = Robot.m_oi.mJoystick1.getRawAxis(3);// Right x
 		double ang = Robot.m_oi.mJoystick1.getTwist();
-		Robot.m_ChasisDriveSubsystem.requestedSpd = speed;
-		Robot.m_ChasisDriveSubsystem.requestedAng = ang * 100;
+		if ((ang > -0.18 && ang < 0.18) && (speed < 0.18 && speed > -0.018)) {
+			ChasisStateUpdateCommand.OVERRIDE = false;
+		} else {
+			ChasisStateUpdateCommand.OVERRIDE = true;
+			Robot.m_ChasisDriveSubsystem.mArcadeForceDrive(speed, ang);
+			isReturning = true;
+		}
+		if (isReturning) {
+			Robot.m_ChasisDriveSubsystem.resetAngleState();
+			isReturning = false;
+		}
+		if (TeleArcadeDriveDebug) {
+			logger.info("Requested: " + speed + ", " + ang);
+		}
 	}
 
 	// Make this return true when this Command no longer needs to run execute()
@@ -47,6 +60,7 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 	// Called once after isFinished returns true
 	@Override
 	protected void end() {
+		super.end();
 		Robot.m_ChasisDriveSubsystem.stopDrive();
 		logger.info("Instance destroyed");
 		TeleopArcadeDriveCommand.instance = null;

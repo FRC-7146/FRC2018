@@ -10,7 +10,7 @@ import io.github.d0048.Utils;
 
 public class StraightDriveCommand extends CmdBase {
 	private static final java.util.logging.Logger logger = Logger.getLogger(StraightDriveCommand.class.getName());
-	public static Command instance;
+	public static CmdBase instance;
 	public static boolean StraightDriveDebug = true;
 
 	private double spd = 0, ang = 0, tol = 3;
@@ -30,7 +30,7 @@ public class StraightDriveCommand extends CmdBase {
 	// Called just before this Command runs the first time
 	@Override
 	protected void initialize() {
-		this.ang = Robot.m_GyroSubsystem.mGyro.getAngle();
+		this.ang = Robot.m_GyroSubsystem.getAngle();
 		if (StraightDriveDebug)
 			logger.info("Angle marked");
 	}
@@ -40,11 +40,13 @@ public class StraightDriveCommand extends CmdBase {
 	protected void execute() {
 		if (!Robot.cmdCanRun(this))
 			return;
-		double angle = Utils.AngleOffsetCal(Robot.m_GyroSubsystem.mGyro.getAngle(), this.ang);
-		angle = Utils.Ang2tanh(angle, this.tol);
-		Robot.m_ChasisDriveSubsystem.mDriveArcade(this.spd, angle);
-		if (StraightDriveDebug)
-			logger.info("Straight Drive: \nangle: " + angle);
+		/*
+		 * double angle = Utils.AngleOffsetCal(Robot.m_GyroSubsystem.mGyro.getAngle(),
+		 * this.ang); angle = Utils.Ang2tanh(angle, this.tol);
+		 * Robot.m_ChasisDriveSubsystem.mDriveArcade(this.spd, angle); if
+		 * (StraightDriveDebug) logger.info("Straight Drive: \nangle: " + angle);
+		 */
+		Robot.m_ChasisDriveSubsystem.mArcadeRequest(this.spd, 0);
 	}
 
 	// Make this return true when this Command no longer needs to run execute()
@@ -56,7 +58,8 @@ public class StraightDriveCommand extends CmdBase {
 	// Called once after isFinished returns true
 	@Override
 	protected void end() {
-		Robot.m_ChasisDriveSubsystem.stopDrive();
+		super.end();
+		Robot.m_ChasisDriveSubsystem.mArcadeRequest(0, 0);
 		logger.info("Instance destroyed");
 		StraightDriveCommand.instance = null;
 	}

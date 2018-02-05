@@ -10,6 +10,7 @@ package org.usfirst.frc.team7146.robot;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import org.usfirst.frc.team7146.robot.commands.AngleTurnCommand;
 import org.usfirst.frc.team7146.robot.commands.CmdBase;
 import org.usfirst.frc.team7146.robot.commands.EmergencyRecoverCommand;
 import org.usfirst.frc.team7146.robot.commands.EmergencyStopCommand;
@@ -45,13 +46,17 @@ public class OI {
 	public SpeedController mRightMotor = new Spark(RobotMap.MOTOR.RIGHT_MOTOR_GROUP);
 	public DifferentialDrive mDifferentialDrive = new DifferentialDrive(mLeftMotor, mRightMotor);
 
+	public SpeedController collectorWheelMotor1 = new Spark(2);
+	public SpeedController collectorWheelMotor2 = new Spark(3);
+
 	public Joystick mJoystick1 = new Joystick(0);
 	public Button mXboxBtnA = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_A),
 			mXboxBtnB = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_B),
 			mXboxBtnX = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_X),
 			mXboxBtnY = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_Y),
-			mBtn5 = new JoystickButton(mJoystick1, 5), mBtn6 = new JoystickButton(mJoystick1, 6),
-			mBtn7 = new JoystickButton(mJoystick1, 7), mBtn8 = new JoystickButton(mJoystick1, 8);
+			mXboxBtnLb = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_LB),
+			mBtn6 = new JoystickButton(mJoystick1, 6), mBtn7 = new JoystickButton(mJoystick1, 7),
+			mBtn8 = new JoystickButton(mJoystick1, 8);
 
 	public ADXRS450_Gyro mGyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 	// public Accelerometer mAccelerometer = new ADXL345_I2C(I2C.Port.kOnboard,
@@ -74,5 +79,6 @@ public class OI {
 		mXboxBtnY.whileActive(mStraightDriveFCommand);
 		StraightDriveCommand mStraightDriveBCommand = new StraightDriveCommand(-0.9);
 		mXboxBtnA.whileActive(mStraightDriveBCommand);
+		mXboxBtnX.whileActive(new AngleTurnCommand(40));
 	}
 }

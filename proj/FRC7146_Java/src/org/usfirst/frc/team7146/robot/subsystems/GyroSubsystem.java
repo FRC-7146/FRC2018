@@ -12,7 +12,7 @@ public class GyroSubsystem extends Subsystem {
 	private static final Logger logger = Logger.getLogger(GyroSubsystem.class.getName());
 
 	public Gyro mGyro = Robot.m_oi.mGyro;
-	public Accelerometer mAccel= Robot.m_oi.mAccelerometer;
+	public Accelerometer mAccel = Robot.m_oi.mAccelerometer;
 
 	public GyroSubsystem() {
 		super("GyroSubsystem");
@@ -22,9 +22,21 @@ public class GyroSubsystem extends Subsystem {
 	public void calibrate() {
 		logger.info("Calibrating gyro/acc");
 		Robot.m_oi.mGyro.reset();
-		Robot.m_oi.mGyro.calibrate();
+		// Robot.m_oi.mGyro.calibrate();
 		// TODO: acc set zero
 		logger.info("Calibration done");
+	}
+
+	public double getAngle() {
+		double angle = this.mGyro.getAngle();
+		while (!(angle > -180 && angle < 180)) {
+			if (angle > 180) {
+				angle -= 360;
+			} else if (angle < -180) {
+				angle += 180;
+			}
+		}
+		return angle;
 	}
 
 	@Override

@@ -8,17 +8,19 @@ import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ChasisStateUpdateCommand extends CmdBase {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(ChasisStateUpdateCommand.class.getName());
-	public static Command instance;
+	public static CmdBase instance;
+	public static boolean ChasisUpdateDebug = true;
 
 	public ChasisDriveSubsystem mChasis = Robot.m_ChasisDriveSubsystem;
 	public Gyro mGyro = Robot.m_GyroSubsystem.mGyro;
 
 	public ChasisStateUpdateCommand() {
-		super("ChasisStateUpdateCommand", 99);
+		super("ChasisStateUpdateCommand", 1000);
 		requires(Robot.m_ChasisDriveSubsystem);
 		requires(Robot.m_GyroSubsystem);
 
@@ -34,11 +36,26 @@ public class ChasisStateUpdateCommand extends CmdBase {
 
 	@Override
 	protected void execute() {
-		if (!Robot.cmdCanRun(this))
-			return;
-		update_actual();
-		mChasis.mDriveArcade(mChasis.requestedSpd, mChasis.requestedAng);
+		/*
+		 * if (!Robot.cmdCanRun(this)) return;
+		 */
+		this.update_actual();
 
+	}
+
+	public static boolean OVERRIDE = false;
+
+	public void updateAndDispatch() {
+		if (!OVERRIDE) {
+			update_actual();
+			mChasis.mArcadeDispatch();
+			if (ChasisUpdateDebug) {
+				logger.info("Chasis state update");
+			}
+		}else {
+			logger.info("Update Override");
+		}
+		SmartDashboard.putBoolean("Dispatch Update:", !OVERRIDE);
 	}
 
 	protected void update_actual() {
@@ -54,6 +71,7 @@ public class ChasisStateUpdateCommand extends CmdBase {
 	// Called once after isFinished returns true
 	@Override
 	protected void end() {
+		super.end();
 		Robot.m_ChasisDriveSubsystem.stopDrive();
 		StraightDriveCommand.instance = null;
 		logger.info("Instance destroyed");

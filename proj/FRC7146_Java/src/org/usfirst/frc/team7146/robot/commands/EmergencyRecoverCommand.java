@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.command.Command;
 public class EmergencyRecoverCommand extends CmdBase {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(EmergencyRecoverCommand.class.getName());
-	public static Command instance;
+	public static CmdBase instance;
 
 	public EmergencyRecoverCommand() {
 		super("EmergencyRecoverCommand", -1000);
@@ -33,6 +33,7 @@ public class EmergencyRecoverCommand extends CmdBase {
 			RobotMap.MOTOR.TELE_LEFT_SPEED_FACTOR = ((EmergencyStopCommand) EmergencyStopCommand.instance).LEFT_FACTOR_BAK;
 			RobotMap.MOTOR.TELE_RIGHT_SPEED_FACTOR = ((EmergencyStopCommand) EmergencyStopCommand.instance).RIGHT_FACTOR_BAK;
 			EmergencyRecoverCommand.instance.cancel();
+			Robot.EMERGENCY_HALT = false;
 			this.cancel();
 		} else {
 			logger.info("Failed to Recover: Can not find stop instance");
@@ -49,6 +50,7 @@ public class EmergencyRecoverCommand extends CmdBase {
 	// Called once after isFinished returns true
 	@Override
 	protected void end() {
+		super.end();
 		Robot.m_ChasisDriveSubsystem.stopDrive();
 		logger.info("Instance destroyed");
 		// EmergencyStopCommand.instance = null;

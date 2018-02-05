@@ -7,8 +7,6 @@
 
 package org.usfirst.frc.team7146.robot.commands;
 
-import edu.wpi.first.wpilibj.command.Command;
-
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.Robot;
@@ -16,9 +14,9 @@ import org.usfirst.frc.team7146.robot.Robot;
 /**
  * An example command. You can replace me with your own command.
  */
-public class TeleopTankDriveCommand extends Command {
+public class TeleopTankDriveCommand extends CmdBase {
 	private static final java.util.logging.Logger logger = Logger.getLogger(TeleopTankDriveCommand.class.getName());
-	public static Command instance;
+	public static CmdBase instance;
 
 	public TeleopTankDriveCommand() {
 		super("TeleopTankDriveCommand", 100);
@@ -48,6 +46,7 @@ public class TeleopTankDriveCommand extends Command {
 	// Called once after isFinished returns true
 	@Override
 	protected void end() {
+		super.end();
 		Robot.m_ChasisDriveSubsystem.stopDrive();
 		logger.info("Instance destroyed");
 		TeleopTankDriveCommand.instance = null;
