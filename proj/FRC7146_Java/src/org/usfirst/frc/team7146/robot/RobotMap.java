@@ -9,6 +9,8 @@ package org.usfirst.frc.team7146.robot;
 
 import java.util.logging.Logger;
 
+import io.github.d0048.NumPID;
+
 /**
  * The RobotMap is a mapping from the ports sensors and actuators are wired into
  * to a variable name. This provides flexibility changing wiring, makes checking
@@ -18,6 +20,7 @@ import java.util.logging.Logger;
 public class RobotMap {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(RobotMap.class.getName());
+	public static boolean DEBUG = true;
 
 	public static class MOTOR {
 		/*
@@ -27,14 +30,19 @@ public class RobotMap {
 		 */
 		public static final int LEFT_MOTOR_GROUP = 0;
 		public static final int RIGHT_MOTOR_GROUP = 1;
-		public static final double[] MOTOR_PID = { 2., 0., 0. };
+		public static final NumPID TANK_NUM_PID = new NumPID(2, 0, 0), ARCADE_SPD_NUM_PID = TANK_NUM_PID,
+				ARCADE_ANG_NUM_PID = new NumPID(0.3, 0., 0.), LIFT_NUM_PID = new NumPID(2, 0, 0);
+
+		public final static int COLLECTOR_WHEEL_PORT = 2;
 		/*
-		 * Teleop TankDrive Speed Factor
+		 * Motor Speed Factor
 		 * 
 		 * Do not raise more than 1
 		 */
 		public static double TELE_LEFT_SPEED_FACTOR = 0.7;
 		public static double TELE_RIGHT_SPEED_FACTOR = 0.7;
+		public static double TELE_SPD_FACTOR = 0.7;
+		public static double TELE_ANG_FACTOR = 0.5;
 	}
 
 	public static class JOYSTICK {
