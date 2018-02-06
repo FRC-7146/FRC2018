@@ -154,9 +154,9 @@ public class ChasisDriveSubsystem extends Subsystem {
 	public void mArcadeRequest(double spd, double rot) {
 		this.requestedSpd = spd;
 		if (this.requestedAng + rot > 180) {
-			this.requestedAng = -180 + (this.requestedAng + rot - 180);
-		} else if (this.requestedAng + rot < 180) {
-			this.requestedAng = 180 + (this.requestedAng + rot + 180);
+			this.requestedAng = (this.requestedAng + rot - 360);
+		} else if (this.requestedAng + rot < -180) {
+			this.requestedAng = (this.requestedAng + rot + 360);
 		} else {
 
 			requestedAng += rot;

@@ -3,10 +3,8 @@ package org.usfirst.frc.team7146.robot.commands;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.Robot;
-import org.usfirst.frc.team7146.robot.RobotMap;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
-import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
