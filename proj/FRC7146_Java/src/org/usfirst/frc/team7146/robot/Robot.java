@@ -12,8 +12,19 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import testCommands.AccelTestCMD;
+
+import java.util.logging.Logger;
+
+import org.usfirst.frc.team7146.robot.RobotMap.STATUS;
+import org.usfirst.frc.team7146.robot.commands.ChasisStateUpdateCommand;
+import org.usfirst.frc.team7146.robot.commands.CmdBase;
+import org.usfirst.frc.team7146.robot.commands.TeleopArcadeDriveCommand;
 import org.usfirst.frc.team7146.robot.commands.TeleopTankDriveCommand;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
+import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem.CHASIS_MODE;
+import org.usfirst.frc.team7146.robot.subsystems.GyroSubsystem;
+import org.usfirst.frc.team7146.robot.subsystems.VisionSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -23,8 +34,12 @@ import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
  * project.
  */
 public class Robot extends TimedRobot {
-	public static ChasisDriveSubsystem m_ChasisTrainSubsystem;
+	private static final java.util.logging.Logger logger = Logger.getLogger(Robot.class.getName());
+	public static ChasisDriveSubsystem m_ChasisDriveSubsystem;
+	public static GyroSubsystem m_GyroSubsystem;
+	public static VisionSubsystem m_VisionSubsystem;
 	public static OI m_oi;
+	public static boolean EMERGENCY_HALT = false;
 
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -36,11 +51,14 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		m_oi = new OI();
-		m_ChasisTrainSubsystem = new ChasisDriveSubsystem(RobotMap.MOTOR_PID[0], RobotMap.MOTOR_PID[1],
-				RobotMap.MOTOR_PID[2]);
-		m_chooser.addDefault("Default Auto", new TeleopTankDriveCommand());
-		// chooser.addObject("My Auto", new MyAutoCommand());
+		m_ChasisDriveSubsystem = new ChasisDriveSubsystem(ChasisDriveSubsystem.CHASIS_MODE.ARCADE,
+				RobotMap.MOTOR.ARCADE_SPD_NUM_PID, RobotMap.MOTOR.ARCADE_ANG_NUM_PID);
+		m_GyroSubsystem = new GyroSubsystem();
+		chasisUpdateCmd = new ChasisStateUpdateCommand();
+		m_VisionSubsystem = new VisionSubsystem();
 		SmartDashboard.putData("Auto mode", m_chooser);
+		m_oi.mapOI();// execute at the end to make sure all other subsystems initialized
+		// chooser.addObject("My Auto", new MyAutoCommand());
 	}
 
 	/**
@@ -50,12 +68,18 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void disabledInit() {
-
+		RobotMap.mStatus = STATUS.STAT_HALT;
 	}
 
 	@Override
 	public void disabledPeriodic() {
 		Scheduler.getInstance().run();
+	}
+
+	ChasisStateUpdateCommand chasisUpdateCmd;
+
+	public void mPeriodic() {
+		chasisUpdateCmd.updateAndDispatch();
 	}
 
 	/**
@@ -74,50 +98,88 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		m_autonomousCommand = m_chooser.getSelected();
 
+		RobotMap.mStatus = STATUS.STAT_AUTO;
+		if (m_autonomousCommand != null) {
+			m_autonomousCommand.start();
+		}
 		/*
 		 * String autoSelected = SmartDashboard.getString("Auto Selector", "Default");
 		 * switch(autoSelected) { case "My Auto": autonomousCommand = new
 		 * MyAutoCommand(); break; case "Default Auto": default: autonomousCommand = new
 		 * ExampleCommand(); break; }
 		 */
-
 		// schedule the autonomous command (example)
-		if (m_autonomousCommand != null) {
-			m_autonomousCommand.start();
-		}
 	}
 
-	/**
-	 * This function is called periodically during autonomous.
-	 */
 	@Override
 	public void autonomousPeriodic() {
-		Scheduler.getInstance().run();
+		if (!RobotMap.mStatus.equals(STATUS.STAT_ERR)) {
+			this.mPeriodic();
+			Scheduler.getInstance().run();
+		} else {
+			logger.warning("Err in Periodic");
+			if (!RobotMap.DEBUG) {// Stop running for debug
+				logger.warning("Ignoring");
+				Scheduler.getInstance().run();
+			}
+		}
 	}
 
 	@Override
 	public void teleopInit() {
-		// This makes sure that the autonomous stops running when
-		// teleop starts running. If you want the autonomous to
-		// continue until interrupted by another command, remove
-		// this line or comment it out.
+		RobotMap.mStatus = STATUS.STAT_TELEOP;
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
+		if (m_ChasisDriveSubsystem.mode == CHASIS_MODE.ARCADE) {
+			new TeleopArcadeDriveCommand().start();
+		} else if (m_ChasisDriveSubsystem.mode == CHASIS_MODE.ARCADE) {
+			new TeleopTankDriveCommand().start();
+		}
 	}
 
-	/**
-	 * This function is called periodically during operator control.
-	 */
 	@Override
 	public void teleopPeriodic() {
-		Scheduler.getInstance().run();
+		if (!RobotMap.mStatus.equals(STATUS.STAT_ERR)) {
+			this.mPeriodic();
+			Scheduler.getInstance().run();
+		} else {
+			logger.warning("Err in Teleop");
+			if (!RobotMap.DEBUG) {// Stop running for debug
+				logger.warning("Ignoring");
+				Scheduler.getInstance().run();
+			}
+		}
 	}
 
-	/**
-	 * This function is called periodically during test mode.
-	 */
+	@Override
+	public void testInit() {
+		accelTest = new AccelTestCMD();
+	}
+
+	AccelTestCMD accelTest;
+
 	@Override
 	public void testPeriodic() {
+		if (!RobotMap.mStatus.equals(STATUS.STAT_ERR)) {
+			this.mPeriodic();
+			accelTest.disp();
+			Scheduler.getInstance().run();
+		} else {
+			logger.warning("Err in Test");
+			if (!RobotMap.DEBUG) {// Stop running for debug
+				logger.warning("Ignoring");
+				Scheduler.getInstance().run();
+			}
+		}
+	}
+
+	public static boolean cmdCanRun(CmdBase cmd) {
+		for (String k : m_oi.mCommands.keySet()) {
+			if (m_oi.mCommands.get(k).priority < cmd.priority && m_oi.mCommands.get(k).isRunning()) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
