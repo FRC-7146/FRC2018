@@ -4,12 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.xml.validation.SchemaFactoryLoader;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -18,7 +15,9 @@ import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import io.github.d0048.vision.VisualTarget;
 
 public class VisionSubsystem extends Subsystem {
 
@@ -68,27 +67,26 @@ public class VisionSubsystem extends Subsystem {
 		// TODO
 		Mat cubeMat = new Mat();// reuse to save memory
 		cvSink.grabFrame(cubeMat);
-
-		Mat cubeMatHSV = new Mat();
-		Imgproc.cvtColor(cubeMat, cubeMatHSV, Imgproc.COLOR_RGB2HSV);
-		cubeMat = null;
-
-		Mat cubeMatBlur = new Mat();
-		Imgproc.GaussianBlur(cubeMatHSV, cubeMatBlur, new Size(3, 3), 0);
-		cubeMatHSV = null;
-
-		Mat cubeMatFilter = new Mat();
-		Imgproc.bilateralFilter(cubeMatBlur, cubeMatFilter, 9, 9, 75);
-		cubeMatBlur = null;
-
-		Mat cubeMask = new Mat();
-		Core.inRange(cubeMatFilter, lowerY, upperY, cubeMask);
-
-		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		Imgproc.findContours(cubeMask.clone(), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-
-		MatOfPoint max = this.LargestCnt(contours);
-		this.dispFram(max);
+		this.dispFram(cubeMat);
+		/*
+		 * Mat cubeMatHSV = new Mat(); Imgproc.cvtColor(cubeMat, cubeMatHSV,
+		 * Imgproc.COLOR_RGB2HSV); cubeMat = null;
+		 * 
+		 * Mat cubeMatBlur = new Mat(); Imgproc.GaussianBlur(cubeMatHSV, cubeMatBlur,
+		 * new Size(3, 3), 0); cubeMatHSV = null;
+		 * 
+		 * Mat cubeMatFilter = new Mat(); Imgproc.bilateralFilter(cubeMatBlur,
+		 * cubeMatFilter, 9, 9, 75); cubeMatBlur = null;
+		 * 
+		 * Mat cubeMask = new Mat(); Core.inRange(cubeMatFilter, lowerY, upperY,
+		 * cubeMask);
+		 * 
+		 * List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+		 * Imgproc.findContours(cubeMask.clone(), contours, new Mat(),
+		 * Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		 * 
+		 * MatOfPoint max = this.LargestCnt(contours); this.dispFram(max);
+		 */
 		return null;
 	}
 
@@ -114,22 +112,4 @@ public class VisionSubsystem extends Subsystem {
 		// TODO
 		return null;
 	}
-}
-
-class VisualTarget {
-	// in view,deviation from center
-	public double x = 0, y = 0, area = 0;
-	public double lu = 0, ru = 0, ld = 0, rd = 0;
-
-	public VisualTarget(double x, double y, double area, double lu, double ru, double ld, double rd) {
-		super();
-		this.x = x;
-		this.y = y;
-		this.area = area;
-		this.lu = lu;
-		this.ru = ru;
-		this.ld = ld;
-		this.rd = rd;
-	}
-
 }

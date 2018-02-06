@@ -73,6 +73,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledPeriodic() {
+		if (!MatchInfo.success) {
+			MatchInfo.infoInit();
+		}
 		Scheduler.getInstance().run();
 	}
 
@@ -131,6 +134,7 @@ public class Robot extends TimedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
+		m_GyroSubsystem.mGyro.reset();
 		if (m_ChasisDriveSubsystem.mode == CHASIS_MODE.ARCADE) {
 			new TeleopArcadeDriveCommand().start();
 		} else if (m_ChasisDriveSubsystem.mode == CHASIS_MODE.ARCADE) {

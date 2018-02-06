@@ -12,7 +12,7 @@ public class ChasisStateUpdateCommand extends CmdBase {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(ChasisStateUpdateCommand.class.getName());
 	public static CmdBase instance;
-	public static boolean ChasisUpdateDebug = true;
+	public static boolean ChasisUpdateDebug = false;
 
 	public ChasisDriveSubsystem mChasis = Robot.m_ChasisDriveSubsystem;
 	public Gyro mGyro = Robot.m_GyroSubsystem.mGyro;
@@ -50,14 +50,14 @@ public class ChasisStateUpdateCommand extends CmdBase {
 			if (ChasisUpdateDebug) {
 				logger.info("Chasis state update");
 			}
-		}else {
+		} else {
 			logger.info("Update Override");
 		}
 		SmartDashboard.putBoolean("Dispatch Update:", !OVERRIDE);
 	}
 
 	protected void update_actual() {
-		mChasis.actualAng = mGyro.getAngle();
+		//nothing to do really..
 	}
 
 	// Make this return true when this Command no longer needs to run execute()

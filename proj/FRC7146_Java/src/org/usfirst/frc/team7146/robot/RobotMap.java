@@ -31,7 +31,7 @@ public class RobotMap {
 		public static final int LEFT_MOTOR_GROUP = 0;
 		public static final int RIGHT_MOTOR_GROUP = 1;
 		public static final NumPID TANK_NUM_PID = new NumPID(2, 0, 0), ARCADE_SPD_NUM_PID = TANK_NUM_PID,
-				ARCADE_ANG_NUM_PID = new NumPID(0.3, 0., 0.), LIFT_NUM_PID = new NumPID(2, 0, 0);
+				ARCADE_ANG_NUM_PID = new NumPID(0.1, 0., 0.), LIFT_NUM_PID = new NumPID(2, 0, 0);
 
 		public final static int COLLECTOR_WHEEL_PORT = 2;
 		/*
@@ -42,7 +42,7 @@ public class RobotMap {
 		public static double TELE_LEFT_SPEED_FACTOR = 0.7;
 		public static double TELE_RIGHT_SPEED_FACTOR = 0.7;
 		public static double TELE_SPD_FACTOR = 0.7;
-		public static double TELE_ANG_FACTOR = 0.5;
+		public static double TELE_ANG_FACTOR = 0.7;
 	}
 
 	public static class JOYSTICK {

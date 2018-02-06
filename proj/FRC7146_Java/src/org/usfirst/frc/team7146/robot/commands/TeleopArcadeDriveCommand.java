@@ -35,7 +35,7 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 		}
 		double speed = Robot.m_oi.mJoystick1.getRawAxis(3);// Right x
 		double ang = Robot.m_oi.mJoystick1.getTwist();
-		if ((ang > -0.18 && ang < 0.18) && (speed < 0.18 && speed > -0.018)) {
+		if ((ang > -0.18 && ang < 0.18) && (speed < 0.18 && speed > -0.18)) {
 			ChasisStateUpdateCommand.OVERRIDE = false;
 		} else {
 			ChasisStateUpdateCommand.OVERRIDE = true;

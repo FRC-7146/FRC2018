@@ -35,7 +35,7 @@ import io.github.d0048.Utils;
 
 public class ChasisDriveSubsystem extends Subsystem {
 	private static final Logger logger = Logger.getLogger(ChasisDriveSubsystem.class.getName());
-	public static boolean CHASIS_DEBUG = true;
+	public static boolean CHASIS_DEBUG = false;
 
 	public static enum CHASIS_MODE {
 		TANK, ARCADE
@@ -57,7 +57,6 @@ public class ChasisDriveSubsystem extends Subsystem {
 	PIDController mPIDArcadeAngCtler;// Arcade drive mode
 	public double requestedSpd = 0, requestedAng = 0;
 	public double execAng = 0;
-	public double actualAng = 0;
 
 	/**
 	 * Either (arcade, spd_pid, ang_pid) Or (Tank, left_pid, right_pid) !!!Ang pid
@@ -86,7 +85,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 
 				@Override
 				public double pidGet() {
-					return actualAng;
+					return Robot.m_GyroSubsystem.getAngle();
 				}
 
 				@Override
@@ -100,10 +99,10 @@ public class ChasisDriveSubsystem extends Subsystem {
 					execAng = output;
 				}
 			});
-			this.mPIDArcadeAngCtler.setAbsoluteTolerance(10);
+			this.mPIDArcadeAngCtler.setAbsoluteTolerance(15);
 			this.mPIDArcadeAngCtler.setInputRange(-180, 180);
 			this.mPIDArcadeAngCtler.setOutputRange(-1, 1);
-			this.mPIDArcadeAngCtler.setContinuous();
+			this.mPIDArcadeAngCtler.setContinuous(true);
 			this.mPIDArcadeAngCtler.enable();
 			// Arcade angle
 			// pid--------------------------------------------------------------
@@ -149,6 +148,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 		}
 		mDifferentialDrive.arcadeDrive(xSpeed * RobotMap.MOTOR.TELE_SPD_FACTOR, // TODO: set
 				zRot * RobotMap.MOTOR.TELE_ANG_FACTOR);
+		writeStatus();
 	}
 
 	public void mArcadeRequest(double spd, double rot) {
@@ -167,24 +167,36 @@ public class ChasisDriveSubsystem extends Subsystem {
 		if (CHASIS_DEBUG) {
 			logger.info("Got an request of" + spd + ", " + rot);
 		}
+		writeStatus();
 	}
 
 	public void mArcadeForceDrive(double spd, double rot) {
+		writeStatus();
 		resetAngleState();
+		writeStatus();
 		this.mDriveArcade(spd, rot);
+		writeStatus();
 		resetAngleState();
+		writeStatus();
 	}
 
 	public void mArcadeDispatch() {
 		this.mDriveArcade(this.requestedSpd, this.execAng);
+		writeStatus();
+	}
+
+	public void writeStatus() {
 		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
 		SmartDashboard.putNumber("Requested speed", requestedSpd);
 		SmartDashboard.putNumber("Exec Angle: ", execAng);
+		SmartDashboard.putNumber("Measured angle", Robot.m_GyroSubsystem.getAngle());
+		SmartDashboard.putNumber("Gyro ang", this.mGyro.getAngle());
 	}
 
 	public void resetAngleState() {
 		this.requestedAng = Robot.m_GyroSubsystem.getAngle();
 		this.mPIDArcadeAngCtler.setSetpoint(Robot.m_GyroSubsystem.getAngle());
+		writeStatus();
 		if (CHASIS_DEBUG) {
 			logger.info("Chasis angle reset");
 		}

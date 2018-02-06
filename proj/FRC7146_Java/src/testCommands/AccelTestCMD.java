@@ -1,5 +1,7 @@
 package testCommands;
 
+import java.awt.event.MouseWheelEvent;
+import java.math.BigDecimal;
 import java.util.logging.Logger;
 
 import org.omg.PortableServer.THREAD_POLICY_ID;
@@ -39,17 +41,17 @@ public class AccelTestCMD extends CmdBase {
 	}
 
 	// Called repeatedly when this Command is scheduled to run
-	public double v = 0, x = 0, dt = 0.9;
+	public BigDecimal v = new BigDecimal(0), x = new BigDecimal(0), dt = new BigDecimal(1/3);
 
 	public void disp() {
 		// if (!Robot.cmdCanRun(this))
 		// return;
-		v += (mAccel.getX() - ofs) * dt;
-		x += v * dt;
+		v = v.add(dt.multiply(new BigDecimal((mAccel.getX()))));
+		x = x.add(v.multiply(dt));
 		logger.info("Accel:\n" + "\na: " + (mAccel.getX() - ofs) + "\nv: " + v + "\nx: " + x);
 		SmartDashboard.putNumber("AccX", (mAccel.getX() - ofs));
-		SmartDashboard.putNumber("v", this.v);
-		SmartDashboard.putNumber("x", this.x);
+		SmartDashboard.putNumber("v", this.v.doubleValue());
+		SmartDashboard.putNumber("x", this.x.doubleValue());
 
 	}
 

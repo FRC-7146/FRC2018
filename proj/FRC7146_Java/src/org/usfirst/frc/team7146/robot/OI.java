@@ -55,8 +55,9 @@ public class OI {
 			mXboxBtnX = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_X),
 			mXboxBtnY = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_Y),
 			mXboxBtnLb = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_LB),
-			mBtn6 = new JoystickButton(mJoystick1, 6), mBtn7 = new JoystickButton(mJoystick1, 7),
-			mBtn8 = new JoystickButton(mJoystick1, 8);
+			mXboxBtnRb = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_RB),
+			mXboxBtnLt = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_LT),
+			mXboxBtnRt = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_RT);
 
 	public ADXRS450_Gyro mGyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 	// public Accelerometer mAccelerometer = new ADXL345_I2C(I2C.Port.kOnboard,
@@ -80,5 +81,16 @@ public class OI {
 		StraightDriveCommand mStraightDriveBCommand = new StraightDriveCommand(-0.9);
 		mXboxBtnA.whileActive(mStraightDriveBCommand);
 		mXboxBtnX.whileActive(new AngleTurnCommand(40));
+		mXboxBtnLt.whileHeld(new Command() {
+			@Override
+			protected void execute() {
+				Robot.m_VisionSubsystem.findCube();
+			}
+
+			@Override
+			protected boolean isFinished() {
+				return false;
+			}
+		});
 	}
 }
