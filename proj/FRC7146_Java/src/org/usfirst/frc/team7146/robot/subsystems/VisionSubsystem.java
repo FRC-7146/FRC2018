@@ -15,6 +15,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -25,13 +26,15 @@ public class VisionSubsystem extends Subsystem {
 	public CameraServer mCameraServer = CameraServer.getInstance();
 	public UsbCamera mUsbCamera = mCameraServer.startAutomaticCapture();
 	CvSink cvSink = mCameraServer.getVideo();
+	CvSource cvSrcOut;
 	public boolean VisionDebug = false;
 
 	public VisionSubsystem() {
 		this("VisionSubSystem");
 		this.mUsbCamera.setFPS(10);
+		this.mUsbCamera.setResolution(640, 480);
+		this.cvSrcOut = CameraServer.getInstance().putVideo("Rectangle", 640, 480);
 		// this.mUsbCamera.setExposureAuto();
-		// this.mUsbCamera.setWhiteBalanceAuto();
 	}
 
 	public VisionSubsystem(String name) {
@@ -85,8 +88,13 @@ public class VisionSubsystem extends Subsystem {
 		Imgproc.findContours(cubeMask.clone(), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		MatOfPoint max = this.LargestCnt(contours);
-
+		this.dispFram(max);
 		return null;
+	}
+
+	public void dispFram(Mat m) {
+		this.cvSrcOut.notifyError(cvSink.getError());
+		this.cvSrcOut.putFrame(m);
 	}
 
 	/**
