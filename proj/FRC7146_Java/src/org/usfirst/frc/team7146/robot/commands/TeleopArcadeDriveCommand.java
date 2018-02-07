@@ -42,6 +42,7 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 			Robot.m_ChasisDriveSubsystem.mArcadeForceDrive(speed, ang);
 			isReturning = true;
 		}
+
 		if (isReturning) {
 			Robot.m_ChasisDriveSubsystem.resetAngleState();
 			isReturning = false;

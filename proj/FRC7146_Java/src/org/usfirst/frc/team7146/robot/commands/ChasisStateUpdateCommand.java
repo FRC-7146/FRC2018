@@ -45,19 +45,20 @@ public class ChasisStateUpdateCommand extends CmdBase {
 
 	public void updateAndDispatch() {
 		if (!OVERRIDE) {
-			update_actual();
+			//update_actual();
 			mChasis.mArcadeDispatch();
 			if (ChasisUpdateDebug) {
 				logger.info("Chasis state update");
 			}
 		} else {
+			mChasis.resetAngleState();
 			logger.info("Update Override");
 		}
 		SmartDashboard.putBoolean("Dispatch Update:", !OVERRIDE);
 	}
 
 	protected void update_actual() {
-		//nothing to do really..
+		// nothing to do really..
 	}
 
 	// Make this return true when this Command no longer needs to run execute()

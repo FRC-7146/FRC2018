@@ -9,17 +9,10 @@ package org.usfirst.frc.team7146.robot.subsystems;
 
 import java.util.logging.Logger;
 
-import javax.xml.parsers.DocumentBuilder;
-
-import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.RobotMap;
 import org.usfirst.frc.team7146.robot.commands.ChasisStateUpdateCommand;
 import org.usfirst.frc.team7146.robot.commands.TeleopArcadeDriveCommand;
-import org.usfirst.frc.team7146.robot.commands.TeleopTankDriveCommand;
-
-import edu.wpi.first.wpilibj.AnalogAccelerometer;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
@@ -31,7 +24,6 @@ import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import io.github.d0048.NumPID;
-import io.github.d0048.Utils;
 
 public class ChasisDriveSubsystem extends Subsystem {
 	private static final Logger logger = Logger.getLogger(ChasisDriveSubsystem.class.getName());
@@ -56,7 +48,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 	 */
 	PIDController mPIDArcadeAngCtler;// Arcade drive mode
 	public double requestedSpd = 0, requestedAng = 0;
-	public double execAng = 0;
+	// public double execAng = 0;
 
 	/**
 	 * Either (arcade, spd_pid, ang_pid) Or (Tank, left_pid, right_pid) !!!Ang pid
@@ -96,13 +88,19 @@ public class ChasisDriveSubsystem extends Subsystem {
 
 				@Override
 				public void pidWrite(double output) {
-					execAng = output;
+					// execAng = output;
+					if (!ChasisStateUpdateCommand.OVERRIDE) {
+						mArcadeDispatch();
+					} else {
+						resetAngleState();
+					}
 				}
 			});
+			this.mPIDArcadeAngCtler.setContinuous(true);
 			this.mPIDArcadeAngCtler.setAbsoluteTolerance(15);
 			this.mPIDArcadeAngCtler.setInputRange(-180, 180);
-			this.mPIDArcadeAngCtler.setOutputRange(-1, 1);
-			this.mPIDArcadeAngCtler.setContinuous(true);
+			this.mPIDArcadeAngCtler.setOutputRange(-0.9, 0.9);
+
 			this.mPIDArcadeAngCtler.enable();
 			// Arcade angle
 			// pid--------------------------------------------------------------
@@ -181,14 +179,14 @@ public class ChasisDriveSubsystem extends Subsystem {
 	}
 
 	public void mArcadeDispatch() {
-		this.mDriveArcade(this.requestedSpd, this.execAng);
+		this.mDriveArcade(this.requestedSpd, this.mPIDArcadeAngCtler.get());
 		writeStatus();
 	}
 
 	public void writeStatus() {
 		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
 		SmartDashboard.putNumber("Requested speed", requestedSpd);
-		SmartDashboard.putNumber("Exec Angle: ", execAng);
+		SmartDashboard.putNumber("Exec Angle: ", this.mPIDArcadeAngCtler.get());
 		SmartDashboard.putNumber("Measured angle", Robot.m_GyroSubsystem.getAngle());
 		SmartDashboard.putNumber("Gyro ang", this.mGyro.getAngle());
 	}
