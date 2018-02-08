@@ -18,6 +18,7 @@ import org.usfirst.frc.team7146.robot.commands.EmergencyStopCommand;
 import org.usfirst.frc.team7146.robot.commands.StraightDriveCommand;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -72,6 +73,7 @@ public class OI {
 	public OI() {
 		mTalon1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
 		mTalon1.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 1, 10);
+		mTalon1.set(ControlMode.PercentOutput, 0.0); // Disable output coz not needed
 	}
 
 	public void mapOI() {

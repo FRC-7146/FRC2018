@@ -159,6 +159,9 @@ public class Robot extends TimedRobot {
 	@Override
 	public void testInit() {
 		accelTest = new AccelTestCMD();
+		while (true) {
+			m_VisionSubsystem.findCube();
+		}
 	}
 
 	AccelTestCMD accelTest;

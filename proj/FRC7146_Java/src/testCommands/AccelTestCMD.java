@@ -54,10 +54,10 @@ public class AccelTestCMD extends CmdBase {
 		 */
 		if (i-- < 0) {
 			i = itr;
-			SmartDashboard.putNumber("Encoder position", Robot.m_oi.mTalon1.getSelectedSensorPosition(1));
-			SmartDashboard.putNumber("Encode velocity", Robot.m_oi.mTalon1.getSelectedSensorVelocity(1));
-			logger.info("Encode velocity: " + Robot.m_oi.mTalon1.getSelectedSensorVelocity(1));
-			logger.info("Encoder position: " + Robot.m_oi.mTalon1.getSelectedSensorPosition(1));
+			SmartDashboard.putNumber("Encoder position", Robot.m_oi.mTalon1.getSelectedSensorPosition(0));
+			SmartDashboard.putNumber("Encode velocity", Robot.m_oi.mTalon1.getSelectedSensorVelocity(0));
+			logger.info("Encode velocity: " + Robot.m_oi.mTalon1.getSelectedSensorVelocity(0));
+			logger.info("Encoder position: " + Robot.m_oi.mTalon1.getSelectedSensorPosition(0));
 		}
 	}
 

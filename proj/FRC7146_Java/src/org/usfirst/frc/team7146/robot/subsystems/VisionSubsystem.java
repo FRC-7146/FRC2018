@@ -5,18 +5,25 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import com.ctre.phoenix.Util;
+
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
+import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import io.github.d0048.Utils;
 import io.github.d0048.vision.VisualTarget;
 
 public class VisionSubsystem extends Subsystem {
@@ -26,13 +33,16 @@ public class VisionSubsystem extends Subsystem {
 	public UsbCamera mUsbCamera = mCameraServer.startAutomaticCapture();
 	CvSink cvSink = mCameraServer.getVideo();
 	CvSource cvSrcOut;
+	// MjpegServer mjpegServer = mCameraServer.addServer("Cubejpeg");
 	public boolean VisionDebug = false;
 
 	public VisionSubsystem() {
 		this("VisionSubSystem");
 		this.mUsbCamera.setFPS(10);
-		this.mUsbCamera.setResolution(640, 480);
-		this.cvSrcOut = CameraServer.getInstance().putVideo("Rectangle", 640, 480);
+		this.mUsbCamera.setResolution(160, 120);
+		cvSrcOut = mCameraServer.putVideo("src out", 160, 120);
+		this.cvSrcOut.setFPS(1);
+		// this.mjpegServer.setSource(this.cvSrcOut);
 		// this.mUsbCamera.setExposureAuto();
 	}
 
@@ -46,17 +56,19 @@ public class VisionSubsystem extends Subsystem {
 	}
 
 	MatOfPoint LargestCnt(List<MatOfPoint> cnts) {
-		int max_area = 0;
+		int max_area = -1;
 		MatOfPoint max = null;
 		for (MatOfPoint cnt : cnts) {
 			if (Imgproc.contourArea(cnt) > max_area) {
+				Utils.release(max);
 				max = cnt;
 			}
 		}
 		return max;
 	}
 
-	Scalar lowerY = new Scalar(30, 60, 60), upperY = new Scalar(40, 255, 255);
+	Scalar lowerY = new Scalar(20, 90, 90);
+	Scalar upperY = new Scalar(30, 250, 250);
 
 	/**
 	 * 
@@ -65,34 +77,59 @@ public class VisionSubsystem extends Subsystem {
 
 	public VisualTarget findCube() {
 		// TODO
-		Mat cubeMat = new Mat();// reuse to save memory
-		cvSink.grabFrame(cubeMat);
-		this.dispFram(cubeMat);
+		List<Mat> toRelsease = new ArrayList<Mat>();
+
+		Mat cubeMat = new Mat();
+		toRelsease.add(cubeMat);
+		if (0 == cvSink.grabFrame(cubeMat)) {
+			logger.warning("Error grabbing fram from camera");
+		}
+
+		Mat cubeMatHSV = new Mat();
+		toRelsease.add(cubeMatHSV);
+		Imgproc.cvtColor(cubeMat, cubeMatHSV, Imgproc.COLOR_BGR2HSV);
+
 		/*
-		 * Mat cubeMatHSV = new Mat(); Imgproc.cvtColor(cubeMat, cubeMatHSV,
-		 * Imgproc.COLOR_RGB2HSV); cubeMat = null;
+		 * Mat cubeMatBlur = new Mat(); toRelsease.add(cubeMatBlur);
+		 * Imgproc.GaussianBlur(cubeMatHSV, cubeMatBlur, new Size(3, 3), 0);
 		 * 
-		 * Mat cubeMatBlur = new Mat(); Imgproc.GaussianBlur(cubeMatHSV, cubeMatBlur,
-		 * new Size(3, 3), 0); cubeMatHSV = null;
-		 * 
-		 * Mat cubeMatFilter = new Mat(); Imgproc.bilateralFilter(cubeMatBlur,
-		 * cubeMatFilter, 9, 9, 75); cubeMatBlur = null;
-		 * 
-		 * Mat cubeMask = new Mat(); Core.inRange(cubeMatFilter, lowerY, upperY,
-		 * cubeMask);
-		 * 
-		 * List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-		 * Imgproc.findContours(cubeMask.clone(), contours, new Mat(),
-		 * Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-		 * 
-		 * MatOfPoint max = this.LargestCnt(contours); this.dispFram(max);
+		 * Mat cubeMatFilter = new Mat(); toRelsease.add(cubeMatFilter);
+		 * Imgproc.bilateralFilter(cubeMatBlur, cubeMatFilter, 9, 9, 75);
 		 */
+
+		Mat cubeMask = cubeMatHSV.clone();
+		toRelsease.add(cubeMask);
+		Core.inRange(cubeMask, lowerY, upperY, cubeMask);
+
+		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+		Imgproc.findContours(cubeMask.clone(), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		MatOfPoint max = this.LargestCnt(contours);
+		if (max == null) {
+			logger.info("Nothing found");
+			return null;
+		}
+		toRelsease.add(max);
+
+		MatOfPoint2f max2f = new MatOfPoint2f();
+		max.convertTo(max2f, CvType.CV_32F);
+		toRelsease.add(max2f);
+
+		Imgproc.drawContours(cubeMat, contours, -1, new Scalar(100, 100, 256), 4);
+		RotatedRect cube = Imgproc.minAreaRect(max2f);
+		logger.info("Detected:" + cube.toString());
+
+		this.dispFram(cubeMask);
+		// this.dispFram(cubeMat);
+
+		Utils.release(toRelsease);
+
 		return null;
 	}
 
 	public void dispFram(Mat m) {
-		this.cvSrcOut.notifyError(cvSink.getError());
+		// this.cvSrcOut.notifyError(cvSink.getError());
 		this.cvSrcOut.putFrame(m);
+
 	}
 
 	/**
