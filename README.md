@@ -1,8 +1,4 @@
 2018FRC 7146 Infinity
 =================
 
-1.16README
-__________
-
-This is a readme for 7146 software department. All the documents will be put into the dev_Sylar branch. 
-
+![Bless](https://cdn.rawgit.com/LunaGao/BlessYourCodeTag/master/tags/ramen.svg)[![GitHub Stats](https://img.shields.io/badge/github-stats-ff5500.svg)](http://githubstats.com/FRC-7146/FRC2018)
