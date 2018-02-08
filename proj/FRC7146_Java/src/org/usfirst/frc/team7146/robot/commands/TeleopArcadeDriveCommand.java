@@ -3,12 +3,18 @@ package org.usfirst.frc.team7146.robot.commands;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.Robot;
+import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
+
+import edu.wpi.first.wpilibj.Joystick;
 
 public class TeleopArcadeDriveCommand extends CmdBase {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(TeleopArcadeDriveCommand.class.getName());
 	public static CmdBase instance;
-	public static boolean TeleArcadeDriveDebug = false;
+	public static boolean TeleArcadeDriveDebug = true;
+
+	private Joystick mJoystick = Robot.m_oi.mJoystick1;
+	private ChasisDriveSubsystem mChasis = Robot.m_ChasisDriveSubsystem;
 
 	public TeleopArcadeDriveCommand() {
 		super("TeleopArcadeDriveCommand", 100);
@@ -35,11 +41,15 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 		}
 		double speed = Robot.m_oi.mJoystick1.getRawAxis(3);// Right x
 		double ang = Robot.m_oi.mJoystick1.getTwist();
-		if ((ang > -0.18 && ang < 0.18) && (speed < 0.18 && speed > -0.18)) {
-			ChasisStateUpdateCommand.OVERRIDE = false;
+		double pov = mJoystick.getPOV();
+		if ((ang > -0.1 && ang < 0.1) && (speed < 0.18 && speed > -0.18) && pov == -1) {
+			ChasisDriveSubsystem.LOCK_OVERRIDE = false;
 		} else {
-			ChasisStateUpdateCommand.OVERRIDE = true;
+			ChasisDriveSubsystem.LOCK_OVERRIDE = true;
 			Robot.m_ChasisDriveSubsystem.mArcadeForceDrive(speed, ang);
+			if (mJoystick.getPOV() != -1) {
+				Robot.m_ChasisDriveSubsystem.mArcadeRequestAbsolute(0, pov);
+			}
 			isReturning = true;
 		}
 
@@ -48,7 +58,7 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 			isReturning = false;
 		}
 		if (TeleArcadeDriveDebug) {
-			logger.info("Requested: " + speed + ", " + ang);
+			logger.info("Requested: " + speed + ", " + ang + ", " + pov);
 		}
 	}
 

@@ -23,11 +23,18 @@ public class GyroSubsystem extends Subsystem {
 		logger.info("Calibrating gyro/acc");
 		Robot.m_oi.mGyro.reset();
 		// Robot.m_oi.mGyro.calibrate();
-		// TODO: acc set zero
 		logger.info("Calibration done");
 	}
 
 	public double getAngle() {
+		double angle = this.mGyro.getAngle();/*
+												 * while (!(angle > -180 && angle < 180)) { if (angle > 180) { angle -=
+												 * 360; } else if (angle < -180) { angle += 180; } }
+												 */
+		return angle;
+	}
+
+	public double getAbsoluteAngle() {
 		double angle = this.mGyro.getAngle();
 		while (!(angle > -180 && angle < 180)) {
 			if (angle > 180) {
@@ -36,7 +43,8 @@ public class GyroSubsystem extends Subsystem {
 				angle += 180;
 			}
 		}
-		return angle;
+		return angle + 180;
+
 	}
 
 	@Override

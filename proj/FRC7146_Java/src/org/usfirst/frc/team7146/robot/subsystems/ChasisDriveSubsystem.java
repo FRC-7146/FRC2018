@@ -11,8 +11,9 @@ import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.RobotMap;
-import org.usfirst.frc.team7146.robot.commands.ChasisStateUpdateCommand;
 import org.usfirst.frc.team7146.robot.commands.TeleopArcadeDriveCommand;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
@@ -28,6 +29,7 @@ import io.github.d0048.NumPID;
 public class ChasisDriveSubsystem extends Subsystem {
 	private static final Logger logger = Logger.getLogger(ChasisDriveSubsystem.class.getName());
 	public static boolean CHASIS_DEBUG = false;
+	public static boolean LOCK_OVERRIDE = false;
 
 	public static enum CHASIS_MODE {
 		TANK, ARCADE
@@ -77,6 +79,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 
 				@Override
 				public double pidGet() {
+					SmartDashboard.putBoolean("Dispatch Update:", !LOCK_OVERRIDE);
 					return Robot.m_GyroSubsystem.getAngle();
 				}
 
@@ -89,17 +92,23 @@ public class ChasisDriveSubsystem extends Subsystem {
 				@Override
 				public void pidWrite(double output) {
 					// execAng = output;
-					if (!ChasisStateUpdateCommand.OVERRIDE) {
-						mArcadeDispatch();
+					if (DriverStation.getInstance().isOperatorControl()) {
+						if (!LOCK_OVERRIDE) {
+							mArcadeDispatch();
+						} else {
+							logger.info("Chassis pid Override");
+							resetAngleState();
+						}
 					} else {
-						resetAngleState();
+						mArcadeDispatch();
 					}
+
 				}
 			});
-			this.mPIDArcadeAngCtler.setContinuous(true);
-			this.mPIDArcadeAngCtler.setAbsoluteTolerance(15);
-			this.mPIDArcadeAngCtler.setInputRange(-180, 180);
+			this.mPIDArcadeAngCtler.setAbsoluteTolerance(8);
+			this.mPIDArcadeAngCtler.setInputRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.mPIDArcadeAngCtler.setOutputRange(-0.9, 0.9);
+			this.mPIDArcadeAngCtler.setContinuous(true);
 
 			this.mPIDArcadeAngCtler.enable();
 			// Arcade angle
@@ -135,13 +144,14 @@ public class ChasisDriveSubsystem extends Subsystem {
 		}
 		if (CHASIS_DEBUG) {
 			logger.info("ArcadeDrive:" + xSpeed + ", " + zRot);
-			if (Math.abs(zRot) > 1 || Math.abs(xSpeed) > 1) {
-				logger.warning("Threadhold reached, cancelled");
-				return;
-			}
 		}
 		if (Robot.EMERGENCY_HALT) {
 			logger.warning("Emergency stop detected thus cancel");
+			return;
+		}
+		if (Math.abs(zRot) * RobotMap.MOTOR.TELE_ANG_FACTOR > 0.8
+				|| Math.abs(xSpeed) * RobotMap.MOTOR.TELE_SPD_FACTOR > 0.8) {
+			logger.warning("Threadhold reached, cancelled");
 			return;
 		}
 		mDifferentialDrive.arcadeDrive(xSpeed * RobotMap.MOTOR.TELE_SPD_FACTOR, // TODO: set
@@ -151,14 +161,14 @@ public class ChasisDriveSubsystem extends Subsystem {
 
 	public void mArcadeRequest(double spd, double rot) {
 		this.requestedSpd = spd;
-		if (this.requestedAng + rot > 180) {
-			this.requestedAng = (this.requestedAng + rot - 360);
-		} else if (this.requestedAng + rot < -180) {
-			this.requestedAng = (this.requestedAng + rot + 360);
-		} else {
-
-			requestedAng += rot;
-		}
+		/*
+		 * if (this.requestedAng + rot > 180) { this.requestedAng = (this.requestedAng +
+		 * rot - 360); } else if (this.requestedAng + rot < -180) { this.requestedAng =
+		 * (this.requestedAng + rot + 360); } else {
+		 * 
+		 * requestedAng += rot; }
+		 */
+		this.requestedAng += rot;
 		mPIDArcadeAngCtler.setSetpoint(this.requestedAng);
 		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
 		SmartDashboard.putNumber("Requested speed", requestedSpd);
@@ -166,6 +176,19 @@ public class ChasisDriveSubsystem extends Subsystem {
 			logger.info("Got an request of" + spd + ", " + rot);
 		}
 		writeStatus();
+	}
+
+	public void mArcadeRequestAbsolute(double spd, double rot) {
+		this.requestedSpd = spd;
+		this.requestedAng += rot - Robot.m_GyroSubsystem.getAbsoluteAngle();
+		mPIDArcadeAngCtler.setSetpoint(this.requestedAng);
+		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
+		SmartDashboard.putNumber("Requested speed", requestedSpd);
+		if (CHASIS_DEBUG) {
+			logger.info("Got an absolute request of" + spd + ", " + rot);
+		}
+		writeStatus();
+
 	}
 
 	public void mArcadeForceDrive(double spd, double rot) {

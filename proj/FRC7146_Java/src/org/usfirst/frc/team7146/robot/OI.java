@@ -11,28 +11,30 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.commands.AngleTurnCommand;
+import org.usfirst.frc.team7146.robot.commands.ChasisStateUpdateCommand;
 import org.usfirst.frc.team7146.robot.commands.CmdBase;
 import org.usfirst.frc.team7146.robot.commands.EmergencyRecoverCommand;
 import org.usfirst.frc.team7146.robot.commands.EmergencyStopCommand;
 import org.usfirst.frc.team7146.robot.commands.StraightDriveCommand;
+import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
-import edu.wpi.first.wpilibj.ADXL345_I2C;
-import edu.wpi.first.wpilibj.ADXL345_SPI;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import edu.wpi.first.wpilibj.AnalogAccelerometer;
-import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
-import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 /**
  * This class is the glue that binds the controls on the physical operator
@@ -46,8 +48,8 @@ public class OI {
 	public SpeedController mRightMotor = new Spark(RobotMap.MOTOR.RIGHT_MOTOR_GROUP);
 	public DifferentialDrive mDifferentialDrive = new DifferentialDrive(mLeftMotor, mRightMotor);
 
-	public SpeedController collectorWheelMotor1 = new Spark(2);
-	public SpeedController collectorWheelMotor2 = new Spark(3);
+	// public SpeedController collectorWheelMotor1 = new Spark(2);
+	// public SpeedController collectorWheelMotor2 = new Spark(3);
 
 	public Joystick mJoystick1 = new Joystick(0);
 	public Button mXboxBtnA = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_A),
@@ -63,10 +65,13 @@ public class OI {
 	// public Accelerometer mAccelerometer = new ADXL345_I2C(I2C.Port.kOnboard,
 	// Accelerometer.Range.k4G, 0x3A);
 	public Accelerometer mAccelerometer = new BuiltInAccelerometer(Accelerometer.Range.k4G);// TODO: TEST, ACC
+	public TalonSRX mTalon1 = new TalonSRX(1);
 
 	public HashMap<String, CmdBase> mCommands = new HashMap<String, CmdBase>();
 
 	public OI() {
+		mTalon1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
+		mTalon1.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 1, 10);
 	}
 
 	public void mapOI() {
@@ -83,13 +88,22 @@ public class OI {
 		mXboxBtnX.whileActive(new AngleTurnCommand(40));
 		mXboxBtnLt.whileHeld(new Command() {
 			@Override
+			protected void initialize() {
+				ChasisDriveSubsystem.LOCK_OVERRIDE = false;
+			}
+
+			@Override
 			protected void execute() {
-				Robot.m_VisionSubsystem.findCube();
 			}
 
 			@Override
 			protected boolean isFinished() {
 				return false;
+			}
+
+			@Override
+			protected void end() {
+				ChasisDriveSubsystem.LOCK_OVERRIDE = true;
 			}
 		});
 	}

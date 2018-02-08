@@ -1,9 +1,7 @@
 package io.github.d0048.vision;
 
-import org.opencv.core.Core;
 import org.opencv.core.Point;
 
-import edu.wpi.cscore.CvSource;
 import io.github.d0048.Utils;
 
 public class VisualTarget {

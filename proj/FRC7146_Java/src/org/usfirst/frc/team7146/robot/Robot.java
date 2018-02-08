@@ -81,8 +81,8 @@ public class Robot extends TimedRobot {
 
 	ChasisStateUpdateCommand chasisUpdateCmd;
 
-	public void mPeriodic() {
-		chasisUpdateCmd.updateAndDispatch();
+	public void mPeriodic() {// execute everywhere except disable
+		// chasisUpdateCmd.updateAndDispatch();
 	}
 
 	/**
@@ -166,9 +166,9 @@ public class Robot extends TimedRobot {
 	@Override
 	public void testPeriodic() {
 		if (!RobotMap.mStatus.equals(STATUS.STAT_ERR)) {
-			this.mPeriodic();
+			// this.mPeriodic();
 			accelTest.disp();
-			Scheduler.getInstance().run();
+			// Scheduler.getInstance().run();
 		} else {
 			logger.warning("Err in Test");
 			if (!RobotMap.DEBUG) {// Stop running for debug
