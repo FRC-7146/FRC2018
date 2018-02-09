@@ -48,7 +48,8 @@ public class ChasisDriveSubsystem extends Subsystem {
 	/**
 	 * requested: src|requested: dst|actual: current
 	 */
-	PIDController mPIDArcadeAngCtler;// Arcade drive mode
+	public PIDController mPIDArcadeAngCtler;// Arcade drive mode
+	public PIDController mPIDArcadeDispCtler;// Arcade drive mode
 	public double requestedSpd = 0, requestedAng = 0;
 	// public double execAng = 0;
 
@@ -92,15 +93,11 @@ public class ChasisDriveSubsystem extends Subsystem {
 				@Override
 				public void pidWrite(double output) {
 					// execAng = output;
-					if (DriverStation.getInstance().isOperatorControl()) {
-						if (!LOCK_OVERRIDE) {
-							mArcadeDispatch();
-						} else {
-							logger.info("Chassis pid Override");
-							resetAngleState();
-						}
-					} else {
+					if (!LOCK_OVERRIDE) {
 						mArcadeDispatch();
+					} else {
+						logger.info("Chassis pid Override");
+						resetAngleState();
 					}
 
 				}

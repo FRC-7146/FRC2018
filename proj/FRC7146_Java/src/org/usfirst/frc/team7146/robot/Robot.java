@@ -99,6 +99,8 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
+		ChasisDriveSubsystem.LOCK_OVERRIDE = false;
+
 		m_autonomousCommand = m_chooser.getSelected();
 
 		RobotMap.mStatus = STATUS.STAT_AUTO;
@@ -130,6 +132,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
+		ChasisDriveSubsystem.LOCK_OVERRIDE = true;
 		RobotMap.mStatus = STATUS.STAT_TELEOP;
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
@@ -158,10 +161,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void testInit() {
+		ChasisDriveSubsystem.LOCK_OVERRIDE = true;
 		accelTest = new AccelTestCMD();
-		while (true) {
-			m_VisionSubsystem.findCube();
-		}
 	}
 
 	AccelTestCMD accelTest;
@@ -169,8 +170,19 @@ public class Robot extends TimedRobot {
 	@Override
 	public void testPeriodic() {
 		if (!RobotMap.mStatus.equals(STATUS.STAT_ERR)) {
-			// this.mPeriodic();
-			accelTest.disp();
+			this.mPeriodic();
+
+			if (true) {// Accel Test
+				accelTest.disp();
+			}
+			if (true) {// CV Test
+				try {
+					m_VisionSubsystem.findCube();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
 			// Scheduler.getInstance().run();
 		} else {
 			logger.warning("Err in Test");

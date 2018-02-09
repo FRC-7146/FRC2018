@@ -75,7 +75,7 @@ public class VisionSubsystem extends Subsystem {
 	 * @return null if nothing found
 	 */
 
-	public VisualTarget findCube() {
+	public VisualTarget findCube() throws Exception {
 		// TODO
 		List<Mat> toRelsease = new ArrayList<Mat>();
 

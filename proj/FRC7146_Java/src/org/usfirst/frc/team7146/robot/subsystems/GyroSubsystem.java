@@ -4,6 +4,9 @@ import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.Robot;
 
+import com.ctre.phoenix.ErrorCode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
@@ -13,6 +16,7 @@ public class GyroSubsystem extends Subsystem {
 
 	public Gyro mGyro = Robot.m_oi.mGyro;
 	public Accelerometer mAccel = Robot.m_oi.mAccelerometer;
+	public TalonSRX mTalon1 = Robot.m_oi.mTalon1;
 
 	public GyroSubsystem() {
 		super("GyroSubsystem");
@@ -24,6 +28,14 @@ public class GyroSubsystem extends Subsystem {
 		Robot.m_oi.mGyro.reset();
 		// Robot.m_oi.mGyro.calibrate();
 		logger.info("Calibration done");
+	}
+
+	public double getPosition() {
+		return mTalon1.getSensorCollection().getQuadraturePosition();
+	}
+
+	public ErrorCode setPosition(int newPosition) {
+		return mTalon1.getSensorCollection().setQuadraturePosition(newPosition, 19);
 	}
 
 	public double getAngle() {

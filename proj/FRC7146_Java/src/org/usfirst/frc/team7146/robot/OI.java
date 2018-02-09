@@ -25,6 +25,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
@@ -66,13 +67,14 @@ public class OI {
 	// public Accelerometer mAccelerometer = new ADXL345_I2C(I2C.Port.kOnboard,
 	// Accelerometer.Range.k4G, 0x3A);
 	public Accelerometer mAccelerometer = new BuiltInAccelerometer(Accelerometer.Range.k4G);// TODO: TEST, ACC
-	public TalonSRX mTalon1 = new TalonSRX(1);
+	public TalonSRX mTalon1 = new TalonSRX(0);
 
 	public HashMap<String, CmdBase> mCommands = new HashMap<String, CmdBase>();
 
 	public OI() {
-		mTalon1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
-		mTalon1.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 1, 10);
+		// mTalon1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,
+		// 0, 10);
+		// mTalon1.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 1, 10);
 		mTalon1.set(ControlMode.PercentOutput, 0.0); // Disable output coz not needed
 	}
 
@@ -91,7 +93,12 @@ public class OI {
 		mXboxBtnLt.whileHeld(new Command() {
 			@Override
 			protected void initialize() {
-				ChasisDriveSubsystem.LOCK_OVERRIDE = false;
+				if (DriverStation.getInstance().isOperatorControl() && DriverStation.getInstance().isTest()) {
+					ChasisDriveSubsystem.LOCK_OVERRIDE = false;
+				} else {
+					ChasisDriveSubsystem.LOCK_OVERRIDE = true;
+
+				}
 			}
 
 			@Override
@@ -105,7 +112,12 @@ public class OI {
 
 			@Override
 			protected void end() {
-				ChasisDriveSubsystem.LOCK_OVERRIDE = true;
+				if (DriverStation.getInstance().isOperatorControl() && DriverStation.getInstance().isTest()) {
+					ChasisDriveSubsystem.LOCK_OVERRIDE = true;
+				} else {
+					ChasisDriveSubsystem.LOCK_OVERRIDE = false;
+
+				}
 			}
 		});
 	}

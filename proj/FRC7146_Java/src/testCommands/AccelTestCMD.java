@@ -40,7 +40,7 @@ public class AccelTestCMD extends CmdBase {
 
 	// Called repeatedly when this Command is scheduled to run
 	public BigDecimal v = new BigDecimal(0), x = new BigDecimal(0), dt = new BigDecimal(1 / 3);
-	int itr = 10, i = itr;
+	int itr = 5, i = itr;
 
 	public void disp() {
 		// if (!Robot.cmdCanRun(this))
@@ -54,8 +54,7 @@ public class AccelTestCMD extends CmdBase {
 		 */
 		if (i-- < 0) {
 			i = itr;
-			SmartDashboard.putNumber("Encoder position", Robot.m_oi.mTalon1.getSelectedSensorPosition(0));
-			SmartDashboard.putNumber("Encode velocity", Robot.m_oi.mTalon1.getSelectedSensorVelocity(0));
+			SmartDashboard.putNumber("Encoder position", Robot.m_GyroSubsystem.getPosition());
 			logger.info("Encode velocity: " + Robot.m_oi.mTalon1.getSelectedSensorVelocity(0));
 			logger.info("Encoder position: " + Robot.m_oi.mTalon1.getSelectedSensorPosition(0));
 		}
