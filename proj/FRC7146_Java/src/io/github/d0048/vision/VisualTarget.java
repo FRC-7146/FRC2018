@@ -1,16 +1,18 @@
 package io.github.d0048.vision;
 
 import org.opencv.core.Point;
+import org.opencv.core.Size;
 
-import io.github.d0048.Utils;
 
 public class VisualTarget {
 	// in view,deviation from center
 
-	Point center = new Point(0, 0);
+	public Point center = new Point(0, 0);
+	public Size size = new Size();
 
-	public VisualTarget(Point lu, Point rd) {
-		this.center = Utils.mid(lu, rd);
+	public VisualTarget(Point center, Size size) {
+		this.center = center;
+		this.size = size;
 	}
 
 }

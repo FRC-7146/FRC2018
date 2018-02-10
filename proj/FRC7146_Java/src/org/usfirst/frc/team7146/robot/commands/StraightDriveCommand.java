@@ -3,17 +3,13 @@ package org.usfirst.frc.team7146.robot.commands;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.Robot;
-import org.usfirst.frc.team7146.robot.RobotMap;
-
-import edu.wpi.first.wpilibj.command.Command;
-import io.github.d0048.Utils;
 
 public class StraightDriveCommand extends CmdBase {
 	private static final java.util.logging.Logger logger = Logger.getLogger(StraightDriveCommand.class.getName());
 	public static CmdBase instance;
 	public static boolean StraightDriveDebug = true;
 
-	private double spd = 0, ang = 0, tol = 3;
+	private double spd = 0;
 
 	public StraightDriveCommand(double spd) {
 		super("StraightDriveCommand", 99);
@@ -30,7 +26,7 @@ public class StraightDriveCommand extends CmdBase {
 	// Called just before this Command runs the first time
 	@Override
 	protected void initialize() {
-		this.ang = Robot.m_GyroSubsystem.getAngle();
+		//this.ang = Robot.m_GyroSubsystem.getAngle();
 		if (StraightDriveDebug)
 			logger.info("Angle marked");
 	}

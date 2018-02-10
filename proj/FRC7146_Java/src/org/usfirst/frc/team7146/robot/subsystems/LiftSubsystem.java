@@ -1,37 +1,40 @@
 package org.usfirst.frc.team7146.robot.subsystems;
 
+import org.usfirst.frc.team7146.robot.Robot;
+
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import io.github.d0048.NumPID;
 
 public class LiftSubsystem extends PIDSubsystem {
 
-	public LiftSubsystem(double p, double i, double d) {
-		super(p, i, d);
+	DigitalInput mUpSw = Robot.m_oi.mLimitSwitchUp;
+	DigitalInput mMidSw = Robot.m_oi.mLimitSwitchDw;
+	DigitalInput mDwSw = Robot.m_oi.mLimitSwitchDw;
+
+	public LiftSubsystem(String name, NumPID pid) {
+		super(name, pid.P, pid.I, pid.D, 0);
 		// TODO Auto-generated constructor stub
 	}
 
-	public LiftSubsystem(String name, double p, double i, double d) {
-		super(name, p, i, d);
-		// TODO Auto-generated constructor stub
+	public boolean isUp() {
+		return mUpSw.get();
 	}
 
-	public LiftSubsystem(double p, double i, double d, double period) {
-		super(p, i, d, period);
-		// TODO Auto-generated constructor stub
+	public boolean isMiddle() {
+		return mMidSw.get();
+
 	}
 
-	public LiftSubsystem(String name, double p, double i, double d, double f) {
-		super(name, p, i, d, f);
-		// TODO Auto-generated constructor stub
+	public boolean isDown() {
+		return mDwSw.get();
 	}
 
-	public LiftSubsystem(double p, double i, double d, double period, double f) {
-		super(p, i, d, period, f);
-		// TODO Auto-generated constructor stub
-	}
-
-	public LiftSubsystem(String name, double p, double i, double d, double f, double period) {
-		super(name, p, i, d, f, period);
-		// TODO Auto-generated constructor stub
+	public void writeStatus() {
+		SmartDashboard.putBoolean("Switch Up", mUpSw.get());
+		SmartDashboard.putBoolean("Switch Middle", mMidSw.get());
+		SmartDashboard.putBoolean("Switch Down", mDwSw.get());
 	}
 
 	@Override

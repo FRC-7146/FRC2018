@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
-import edu.wpi.first.wpilibj.Joystick;
 
 public class AbsoluteAngleTurnCommand extends CmdBase {
 
@@ -14,10 +13,10 @@ public class AbsoluteAngleTurnCommand extends CmdBase {
 	public static boolean AbsAngleTurnCommandDebug = true;
 
 	private double absAng = 0;
-	private Joystick mJoystick = Robot.m_oi.mJoystick1;
+	private double absDisp = 0;
 	private ChasisDriveSubsystem mChassis = Robot.m_ChasisDriveSubsystem;
 
-	public AbsoluteAngleTurnCommand(double absAng) {
+	public AbsoluteAngleTurnCommand(double absDisp, double absAng) {
 		super("AbsoluteAngleTurnCommand", 99);
 		requires(Robot.m_ChasisDriveSubsystem);
 		requires(Robot.m_GyroSubsystem);
@@ -26,6 +25,7 @@ public class AbsoluteAngleTurnCommand extends CmdBase {
 		AbsoluteAngleTurnCommand.instance = this;
 		Robot.m_oi.mCommands.put(this.getName(), this);
 
+		this.absDisp = absDisp;
 		this.absAng = absAng;
 	}
 
@@ -40,13 +40,13 @@ public class AbsoluteAngleTurnCommand extends CmdBase {
 	protected void execute() {
 		if (!Robot.cmdCanRun(this))
 			return;
-		mChassis.mArcadeRequestAbsolute(0, absAng);
+		mChassis.mArcadeRequestAbsolute(absDisp, absAng);
 	}
 
 	// Make this return true when this Command no longer needs to run execute()
 	@Override
 	protected boolean isFinished() {
-		return false;
+		return Robot.m_ChasisDriveSubsystem.isOnPosition();
 	}
 
 	// Called once after isFinished returns true

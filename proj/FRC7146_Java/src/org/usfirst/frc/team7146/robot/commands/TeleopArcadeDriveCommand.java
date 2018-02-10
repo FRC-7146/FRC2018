@@ -46,9 +46,9 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 			ChasisDriveSubsystem.LOCK_OVERRIDE = false;
 		} else {
 			ChasisDriveSubsystem.LOCK_OVERRIDE = true;
-			Robot.m_ChasisDriveSubsystem.mArcadeForceDrive(speed, ang);
+			mChasis.mArcadeForceDrive(speed, ang);
 			if (mJoystick.getPOV() != -1) {
-				Robot.m_ChasisDriveSubsystem.mArcadeRequestAbsolute(0, pov);
+				mChasis.mArcadeRequestAbsolute(0, pov);
 			}
 			isReturning = true;
 		}
@@ -72,7 +72,7 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 	@Override
 	protected void end() {
 		super.end();
-		Robot.m_ChasisDriveSubsystem.stopDrive();
+		mChasis.stopDrive();
 		logger.info("Instance destroyed");
 		TeleopArcadeDriveCommand.instance = null;
 	}

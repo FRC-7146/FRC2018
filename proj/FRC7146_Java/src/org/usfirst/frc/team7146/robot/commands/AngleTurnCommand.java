@@ -11,23 +11,25 @@ public class AngleTurnCommand extends CmdBase {
 	public static boolean AngleTurnCommandDebug = true;
 
 	private double ang = 0;
+	private double disp = 0;
 
-	public AngleTurnCommand(double ang) {
+	public AngleTurnCommand(double disp, double ang) {
 		super("AngleTurnCommand", 99);
-		requires(Robot.m_ChasisDriveSubsystem);
+requires(Robot.m_ChasisDriveSubsystem);
 		requires(Robot.m_GyroSubsystem);
 
 		logger.info("Instance created");
 		AngleTurnCommand.instance = this;
 		Robot.m_oi.mCommands.put(this.getName(), this);
 
+		this.disp = disp;
 		this.ang = ang;
 	}
 
 	// Called just before this Command runs the first time
 	@Override
 	protected void initialize() {
-		Robot.m_ChasisDriveSubsystem.mArcadeRequest(0, ang);
+		Robot.m_ChasisDriveSubsystem.mArcadeRequest(disp, ang);
 	}
 
 	// Called repeatedly when this Command is scheduled to run
@@ -40,7 +42,7 @@ public class AngleTurnCommand extends CmdBase {
 	// Make this return true when this Command no longer needs to run execute()
 	@Override
 	protected boolean isFinished() {
-		return false;
+		return Robot.m_ChasisDriveSubsystem.isOnPosition();
 	}
 
 	// Called once after isFinished returns true

@@ -2,11 +2,8 @@ package io.github.d0048;
 
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
-import org.usfirst.frc.team7146.robot.OI;
 
 public class Utils {
 	private static final Logger logger = Logger.getLogger(Utils.class.getName());
@@ -40,7 +37,7 @@ public class Utils {
 		}
 	}
 
-	public static void release(List os) {
+	public static void release(List<Object> os) {
 		release(os.toArray());
 
 	}

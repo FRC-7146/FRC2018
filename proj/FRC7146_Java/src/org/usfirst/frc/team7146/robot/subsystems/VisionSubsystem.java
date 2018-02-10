@@ -11,17 +11,12 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-
-import com.ctre.phoenix.Util;
 
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
-import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import io.github.d0048.Utils;
 import io.github.d0048.vision.VisualTarget;
@@ -116,6 +111,7 @@ public class VisionSubsystem extends Subsystem {
 
 		Imgproc.drawContours(cubeMat, contours, -1, new Scalar(100, 100, 256), 4);
 		RotatedRect cube = Imgproc.minAreaRect(max2f);
+		VisualTarget ret = new VisualTarget(cube.center, cube.size);
 		logger.info("Detected:" + cube.toString());
 
 		this.dispFram(cubeMask);
@@ -123,7 +119,7 @@ public class VisionSubsystem extends Subsystem {
 
 		Utils.release(toRelsease);
 
-		return null;
+		return ret;
 	}
 
 	public void dispFram(Mat m) {

@@ -5,9 +5,6 @@ import java.util.logging.Logger;
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.RobotMap;
 
-import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.Scheduler;
-
 public class EmergencyStopCommand extends CmdBase {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(EmergencyStopCommand.class.getName());

@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.commands.AngleTurnCommand;
-import org.usfirst.frc.team7146.robot.commands.ChasisStateUpdateCommand;
 import org.usfirst.frc.team7146.robot.commands.CmdBase;
 import org.usfirst.frc.team7146.robot.commands.EmergencyRecoverCommand;
 import org.usfirst.frc.team7146.robot.commands.EmergencyStopCommand;
@@ -19,19 +18,16 @@ import org.usfirst.frc.team7146.robot.commands.StraightDriveCommand;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedController;
-import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.command.Command;
@@ -50,8 +46,8 @@ public class OI {
 	public SpeedController mRightMotor = new Spark(RobotMap.MOTOR.RIGHT_MOTOR_GROUP);
 	public DifferentialDrive mDifferentialDrive = new DifferentialDrive(mLeftMotor, mRightMotor);
 
-	// public SpeedController collectorWheelMotor1 = new Spark(2);
-	// public SpeedController collectorWheelMotor2 = new Spark(3);
+	public SpeedController collectorWheelMotors = new Spark(RobotMap.MOTOR.COLLECTOR_WHEEL_PORT);
+	public SpeedController liftMotor = new Spark(RobotMap.MOTOR.LIFT_PORT);
 
 	public Joystick mJoystick1 = new Joystick(0);
 	public Button mXboxBtnA = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_A),
@@ -68,6 +64,9 @@ public class OI {
 	// Accelerometer.Range.k4G, 0x3A);
 	public Accelerometer mAccelerometer = new BuiltInAccelerometer(Accelerometer.Range.k4G);// TODO: TEST, ACC
 	public TalonSRX mTalon1 = new TalonSRX(0);
+	public DigitalInput mLimitSwitchUp = new DigitalInput(RobotMap.SENSOR.NUM_LSW_UP);
+	public DigitalInput mLimitSwitchMID = new DigitalInput(RobotMap.SENSOR.NUM_LSW_MID);
+	public DigitalInput mLimitSwitchDw = new DigitalInput(RobotMap.SENSOR.NUM_LSW_DW);
 
 	public HashMap<String, CmdBase> mCommands = new HashMap<String, CmdBase>();
 
@@ -89,7 +88,7 @@ public class OI {
 		mXboxBtnY.whileActive(mStraightDriveFCommand);
 		StraightDriveCommand mStraightDriveBCommand = new StraightDriveCommand(-0.9);
 		mXboxBtnA.whileActive(mStraightDriveBCommand);
-		mXboxBtnX.whileActive(new AngleTurnCommand(40));
+		mXboxBtnX.whileActive(new AngleTurnCommand(0, 40));
 		mXboxBtnLt.whileHeld(new Command() {
 			@Override
 			protected void initialize() {

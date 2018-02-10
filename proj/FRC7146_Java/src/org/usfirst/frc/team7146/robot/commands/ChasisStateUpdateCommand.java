@@ -6,7 +6,6 @@ import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
 import edu.wpi.first.wpilibj.interfaces.Gyro;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ChasisStateUpdateCommand extends CmdBase {
 	/**

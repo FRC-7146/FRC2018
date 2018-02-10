@@ -19,7 +19,7 @@ import io.github.d0048.NumPID;
  */
 public class RobotMap {
 
-	private static final java.util.logging.Logger logger = Logger.getLogger(RobotMap.class.getName());
+	//private static final java.util.logging.Logger logger = Logger.getLogger(RobotMap.class.getName());
 	public static boolean DEBUG = true;
 
 	public static class MOTOR {
@@ -30,10 +30,11 @@ public class RobotMap {
 		 */
 		public static final int LEFT_MOTOR_GROUP = 0;
 		public static final int RIGHT_MOTOR_GROUP = 1;
-		public static final NumPID TANK_NUM_PID = new NumPID(2, 0, 0), ARCADE_SPD_NUM_PID = TANK_NUM_PID,
+		public static final NumPID TANK_NUM_PID = new NumPID(2, 0, 0), ARCADE_SPD_NUM_PID = new NumPID(0.1, 0, 0),
 				ARCADE_ANG_NUM_PID = new NumPID(0.1, 0., 0.), LIFT_NUM_PID = new NumPID(2, 0, 0);
 
 		public final static int COLLECTOR_WHEEL_PORT = 2;
+		public final static int LIFT_PORT = 3;
 		/*
 		 * Motor Speed Factor
 		 * 
@@ -57,6 +58,12 @@ public class RobotMap {
 		public static final int NUM_XBOX_RT = 8;
 		public static final int NUM_XBOX_LEFT_STICK_BTN = 9;
 		public static final int NUM_XBOX_RIGHT_STICK_BTN = 10;
+	}
+
+	public static class SENSOR {
+		public static final int NUM_LSW_UP = 1;
+		public static final int NUM_LSW_MID = 2;
+		public static final int NUM_LSW_DW = 3;
 	}
 
 	public enum STATUS {
