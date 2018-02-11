@@ -1,8 +1,8 @@
 package testCommands;
 
+import java.math.BigDecimal;
 import java.util.logging.Logger;
 
-import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.commands.CmdBase;
 
@@ -39,18 +39,25 @@ public class AccelTestCMD extends CmdBase {
 	}
 
 	// Called repeatedly when this Command is scheduled to run
-	public double v = 0, x = 0, dt = 0.9;
+	public BigDecimal v = new BigDecimal(0), x = new BigDecimal(0), dt = new BigDecimal(1 / 3);
+	int itr = 5, i = itr;
 
 	public void disp() {
 		// if (!Robot.cmdCanRun(this))
 		// return;
-		v += (mAccel.getX() - ofs) * dt;
-		x += v * dt;
-		logger.info("Accel:\n" + "\na: " + (mAccel.getX() - ofs) + "\nv: " + v + "\nx: " + x);
-		SmartDashboard.putNumber("AccX", (mAccel.getX() - ofs));
-		SmartDashboard.putNumber("v", this.v);
-		SmartDashboard.putNumber("x", this.x);
-
+		/*
+		 * v = v.add(dt.multiply(new BigDecimal((mAccel.getX())))); x =
+		 * x.add(v.multiply(dt)); logger.info("Accel:\n" + "\na: " + (mAccel.getX() -
+		 * ofs) + "\nv: " + v + "\nx: " + x); SmartDashboard.putNumber("AccX",
+		 * (mAccel.getX() - ofs)); SmartDashboard.putNumber("v", this.v.doubleValue());
+		 * SmartDashboard.putNumber("x", this.x.doubleValue());
+		 */
+		if (i-- < 0) {
+			i = itr;
+			SmartDashboard.putNumber("Encoder position", Robot.m_GyroSubsystem.getPosition());
+			logger.info("Encode velocity: " + Robot.m_oi.mTalon1.getSelectedSensorVelocity(0));
+			logger.info("Encoder position: " + Robot.m_oi.mTalon1.getSelectedSensorPosition(0));
+		}
 	}
 
 	// Make this return true when this Command no longer needs to run execute()

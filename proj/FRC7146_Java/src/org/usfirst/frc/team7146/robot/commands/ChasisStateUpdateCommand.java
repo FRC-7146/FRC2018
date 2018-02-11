@@ -6,13 +6,15 @@ import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
 import edu.wpi.first.wpilibj.interfaces.Gyro;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ChasisStateUpdateCommand extends CmdBase {
+	/**
+	 * Abandoned
+	 */
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(ChasisStateUpdateCommand.class.getName());
 	public static CmdBase instance;
-	public static boolean ChasisUpdateDebug = true;
+	public static boolean ChasisUpdateDebug = false;
 
 	public ChasisDriveSubsystem mChasis = Robot.m_ChasisDriveSubsystem;
 	public Gyro mGyro = Robot.m_GyroSubsystem.mGyro;
@@ -41,23 +43,19 @@ public class ChasisStateUpdateCommand extends CmdBase {
 
 	}
 
-	public static boolean OVERRIDE = false;
+	// public static boolean OVERRIDE = false;
 
 	public void updateAndDispatch() {
-		if (!OVERRIDE) {
-			update_actual();
-			mChasis.mArcadeDispatch();
-			if (ChasisUpdateDebug) {
-				logger.info("Chasis state update");
-			}
-		}else {
-			logger.info("Update Override");
-		}
-		SmartDashboard.putBoolean("Dispatch Update:", !OVERRIDE);
+		/*
+		 * if (!OVERRIDE) { // update_actual(); // mChasis.mArcadeDispatch(); if
+		 * (ChasisUpdateDebug) { logger.info("Chasis state update"); } } else { //
+		 * mChasis.resetAngleState(); // logger.info("Update Override"); }
+		 * SmartDashboard.putBoolean("Dispatch Update:", !OVERRIDE);
+		 */
 	}
 
 	protected void update_actual() {
-		mChasis.actualAng = mGyro.getAngle();
+		// nothing to do really..
 	}
 
 	// Make this return true when this Command no longer needs to run execute()

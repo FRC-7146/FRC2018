@@ -1,49 +1,59 @@
 package org.usfirst.frc.team7146.robot.subsystems;
 
+import org.usfirst.frc.team7146.robot.Robot;
+
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
+import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import io.github.d0048.NumPID;
 
-public class LiftSubsystem extends PIDSubsystem {
+public class LiftSubsystem extends Subsystem {
+	public static enum POSITION {
+		UP, MID, DOWN
+	};
 
-	public LiftSubsystem(double p, double i, double d) {
-		super(p, i, d);
+	DigitalInput mUpSw = Robot.m_oi.mLimitSwitchUp;
+	DigitalInput mMidSw = Robot.m_oi.mLimitSwitchDw;
+	DigitalInput mDwSw = Robot.m_oi.mLimitSwitchDw;
+	SpeedController mMotor = Robot.m_oi.liftMotor;
+
+	public LiftSubsystem() {
+		super("LiftSubsystem");
 		// TODO Auto-generated constructor stub
 	}
 
-	public LiftSubsystem(String name, double p, double i, double d) {
-		super(name, p, i, d);
-		// TODO Auto-generated constructor stub
+	public void up() {
+		mMotor.set(0.98);
 	}
 
-	public LiftSubsystem(double p, double i, double d, double period) {
-		super(p, i, d, period);
-		// TODO Auto-generated constructor stub
+	public void down() {
+		mMotor.set(-0.98);
 	}
 
-	public LiftSubsystem(String name, double p, double i, double d, double f) {
-		super(name, p, i, d, f);
-		// TODO Auto-generated constructor stub
+	public void stop() {
+		mMotor.stopMotor();
 	}
 
-	public LiftSubsystem(double p, double i, double d, double period, double f) {
-		super(p, i, d, period, f);
-		// TODO Auto-generated constructor stub
+	public boolean isUp() {
+		return !mUpSw.get();
 	}
 
-	public LiftSubsystem(String name, double p, double i, double d, double f, double period) {
-		super(name, p, i, d, f, period);
-		// TODO Auto-generated constructor stub
+	public boolean isMiddle() {
+		return !mMidSw.get();
+
 	}
 
-	@Override
-	protected double returnPIDInput() {
-		// TODO Auto-generated method stub
-		return 0;
+	public boolean isDown() {
+		return !mDwSw.get();
 	}
 
-	@Override
-	protected void usePIDOutput(double output) {
-		// TODO Auto-generated method stub
-
+	public void writeStatus() {
+		SmartDashboard.putBoolean("Switch Up", mUpSw.get());
+		SmartDashboard.putBoolean("Switch Middle", mMidSw.get());
+		SmartDashboard.putBoolean("Switch Down", mDwSw.get());
+		SmartDashboard.putNumber("Switch Speed", mMotor.get());
 	}
 
 	@Override

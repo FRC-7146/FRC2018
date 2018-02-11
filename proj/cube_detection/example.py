@@ -8,15 +8,16 @@ colorLower = np.array([0, 100, 100], dtype="uint8")
 colorUpper = np.array([255, 200, 200], dtype="uint8")
 
 # Hue from http://color.yafla.com/
-lower_yellow = np.array([30, 60, 60])
-upper_yellow = np.array([40, 255, 255])
+lower_yellow = np.array([25, 90, 90])
+upper_yellow = np.array([30, 250, 250])
 
 camera = cv2.VideoCapture(1)
 camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, True)
+camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, False)
 print(camera.isOpened())
 
 while True:
-    (grabbed, frame) = camera.read(cv2.COLOR_BGR2HSV)
+    (grabbed, frame) = camera.read(cv2.COLOR_RGB2HSV)
     cv2.imshow('original', frame)
 
     # Remove noise
@@ -37,7 +38,7 @@ while True:
         approx = cv2.approxPolyDP(cnt, 0.01 * cv2.arcLength(cnt, True), True)
         rect = np.int32(cv2.boxPoints(cv2.minAreaRect(cnt)))
         # Draw a rectangular frame around the detected object
-        frame = cv2.drawContours(frame, [rect], -1, (100, 100, 256), 4)
+        frame = cv2.drawContours(frame, [rect, approx], -1, (100, 100, 256), 4)
 
     cv2.imshow('classified', frame)
     time.sleep(0.025)

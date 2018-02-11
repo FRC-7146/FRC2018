@@ -3,33 +3,36 @@ package org.usfirst.frc.team7146.robot.commands;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.Robot;
+import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
-public class AngleTurnCommand extends CmdBase {
 
-	private static final java.util.logging.Logger logger = Logger.getLogger(AngleTurnCommand.class.getName());
+public class AbsoluteAngleTurnCommand extends CmdBase {
+
+	private static final java.util.logging.Logger logger = Logger.getLogger(AbsoluteAngleTurnCommand.class.getName());
 	public static CmdBase instance;
-	public static boolean AngleTurnCommandDebug = true;
+	public static boolean AbsAngleTurnCommandDebug = true;
 
-	private double ang = 0;
-	private double disp = 0;
+	private double absAng = 0;
+	private double absDisp = 0;
+	private ChasisDriveSubsystem mChassis = Robot.m_ChasisDriveSubsystem;
 
-	public AngleTurnCommand(double disp, double ang) {
-		super("AngleTurnCommand", 99);
+	public AbsoluteAngleTurnCommand(double absDisp, double absAng) {
+		super("AbsoluteAngleTurnCommand", 99);
 		requires(Robot.m_ChasisDriveSubsystem);
 		requires(Robot.m_GyroSubsystem);
 
 		logger.info("Instance created");
-		AngleTurnCommand.instance = this;
+		AbsoluteAngleTurnCommand.instance = this;
 		Robot.m_oi.mCommands.put(this.getName(), this);
 
-		this.disp = disp;
-		this.ang = ang;
+		this.absDisp = absDisp;
+		this.absAng = absAng;
 	}
 
 	// Called just before this Command runs the first time
 	@Override
 	protected void initialize() {
-		Robot.m_ChasisDriveSubsystem.mArcadeRequest(disp, ang);
+
 	}
 
 	// Called repeatedly when this Command is scheduled to run
@@ -37,6 +40,7 @@ public class AngleTurnCommand extends CmdBase {
 	protected void execute() {
 		if (!Robot.cmdCanRun(this))
 			return;
+		mChassis.mArcadeRequestAbsolute(absDisp, absAng);
 	}
 
 	// Make this return true when this Command no longer needs to run execute()
@@ -51,7 +55,7 @@ public class AngleTurnCommand extends CmdBase {
 		super.end();
 		Robot.m_ChasisDriveSubsystem.resetAngleState();
 		logger.info("Instance destroyed");
-		AngleTurnCommand.instance = null;
+		AbsoluteAngleTurnCommand.instance = null;
 	}
 
 	// Called when another command which requires one or more of the same

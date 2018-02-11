@@ -17,6 +17,7 @@ import testCommands.AccelTestCMD;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.RobotMap.STATUS;
+import org.usfirst.frc.team7146.robot.commands.AutonomousCommandGroup;
 import org.usfirst.frc.team7146.robot.commands.ChasisStateUpdateCommand;
 import org.usfirst.frc.team7146.robot.commands.CmdBase;
 import org.usfirst.frc.team7146.robot.commands.TeleopArcadeDriveCommand;
@@ -24,6 +25,8 @@ import org.usfirst.frc.team7146.robot.commands.TeleopTankDriveCommand;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem.CHASIS_MODE;
 import org.usfirst.frc.team7146.robot.subsystems.GyroSubsystem;
+import org.usfirst.frc.team7146.robot.subsystems.LiftSubsystem;
+import org.usfirst.frc.team7146.robot.subsystems.LiftSubsystem.POSITION;
 import org.usfirst.frc.team7146.robot.subsystems.VisionSubsystem;
 
 /**
@@ -38,6 +41,7 @@ public class Robot extends TimedRobot {
 	public static ChasisDriveSubsystem m_ChasisDriveSubsystem;
 	public static GyroSubsystem m_GyroSubsystem;
 	public static VisionSubsystem m_VisionSubsystem;
+	public static LiftSubsystem m_LiftSubsystem;
 	public static OI m_oi;
 	public static boolean EMERGENCY_HALT = false;
 
@@ -51,14 +55,15 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		m_oi = new OI();
+		m_GyroSubsystem = new GyroSubsystem();
 		m_ChasisDriveSubsystem = new ChasisDriveSubsystem(ChasisDriveSubsystem.CHASIS_MODE.ARCADE,
 				RobotMap.MOTOR.ARCADE_SPD_NUM_PID, RobotMap.MOTOR.ARCADE_ANG_NUM_PID);
-		m_GyroSubsystem = new GyroSubsystem();
-		chasisUpdateCmd = new ChasisStateUpdateCommand();
 		m_VisionSubsystem = new VisionSubsystem();
+		m_LiftSubsystem = new LiftSubsystem();
 		SmartDashboard.putData("Auto mode", m_chooser);
 		m_oi.mapOI();// execute at the end to make sure all other subsystems initialized
 		// chooser.addObject("My Auto", new MyAutoCommand());
+	
 	}
 
 	/**
@@ -73,13 +78,14 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledPeriodic() {
+		if (!MatchInfo.success) {
+			MatchInfo.infoInit();
+		}
 		Scheduler.getInstance().run();
 	}
 
-	ChasisStateUpdateCommand chasisUpdateCmd;
-
-	public void mPeriodic() {
-		chasisUpdateCmd.updateAndDispatch();
+	public void mPeriodic() {// execute everywhere except disable
+		m_LiftSubsystem.writeStatus();
 	}
 
 	/**
@@ -96,7 +102,10 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		m_autonomousCommand = m_chooser.getSelected();
+		ChasisDriveSubsystem.LOCK_OVERRIDE = false;
+
+		//m_autonomousCommand = m_chooser.getSelected();
+		m_autonomousCommand = new AutonomousCommandGroup(99);
 
 		RobotMap.mStatus = STATUS.STAT_AUTO;
 		if (m_autonomousCommand != null) {
@@ -127,10 +136,12 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
+		ChasisDriveSubsystem.LOCK_OVERRIDE = true;
 		RobotMap.mStatus = STATUS.STAT_TELEOP;
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
+		m_GyroSubsystem.mGyro.reset();
 		if (m_ChasisDriveSubsystem.mode == CHASIS_MODE.ARCADE) {
 			new TeleopArcadeDriveCommand().start();
 		} else if (m_ChasisDriveSubsystem.mode == CHASIS_MODE.ARCADE) {
@@ -154,6 +165,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void testInit() {
+		ChasisDriveSubsystem.LOCK_OVERRIDE = true;
 		accelTest = new AccelTestCMD();
 	}
 
@@ -163,8 +175,20 @@ public class Robot extends TimedRobot {
 	public void testPeriodic() {
 		if (!RobotMap.mStatus.equals(STATUS.STAT_ERR)) {
 			this.mPeriodic();
-			accelTest.disp();
-			Scheduler.getInstance().run();
+
+			if (true) {// Accel Test
+				accelTest.disp();
+			}
+			if (true) {// CV Test
+				try {
+					m_VisionSubsystem.findCube();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+			// m_oi.liftMotor.set(20);
+			// Scheduler.getInstance().run();
 		} else {
 			logger.warning("Err in Test");
 			if (!RobotMap.DEBUG) {// Stop running for debug

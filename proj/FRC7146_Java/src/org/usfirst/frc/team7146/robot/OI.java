@@ -11,18 +11,22 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.commands.AngleTurnCommand;
+import org.usfirst.frc.team7146.robot.commands.AutoGrabCubeCommand;
 import org.usfirst.frc.team7146.robot.commands.CmdBase;
 import org.usfirst.frc.team7146.robot.commands.EmergencyRecoverCommand;
 import org.usfirst.frc.team7146.robot.commands.EmergencyStopCommand;
+import org.usfirst.frc.team7146.robot.commands.Lift2MidCommand;
 import org.usfirst.frc.team7146.robot.commands.StraightDriveCommand;
+import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
+import org.usfirst.frc.team7146.robot.subsystems.LiftSubsystem.POSITION;
 
-import edu.wpi.first.wpilibj.ADXL345_I2C;
-import edu.wpi.first.wpilibj.ADXL345_SPI;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import edu.wpi.first.wpilibj.AnalogAccelerometer;
-import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
-import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Spark;
@@ -32,7 +36,6 @@ import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 /**
  * This class is the glue that binds the controls on the physical operator
@@ -46,8 +49,8 @@ public class OI {
 	public SpeedController mRightMotor = new Spark(RobotMap.MOTOR.RIGHT_MOTOR_GROUP);
 	public DifferentialDrive mDifferentialDrive = new DifferentialDrive(mLeftMotor, mRightMotor);
 
-	public SpeedController collectorWheelMotor1 = new Spark(2);
-	public SpeedController collectorWheelMotor2 = new Spark(3);
+	public SpeedController collectorWheelMotors = new Spark(RobotMap.MOTOR.COLLECTOR_WHEEL_PORT);
+	public SpeedController liftMotor = new Spark(RobotMap.MOTOR.LIFT_PORT);
 
 	public Joystick mJoystick1 = new Joystick(0);
 	public Button mXboxBtnA = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_A),
@@ -55,17 +58,30 @@ public class OI {
 			mXboxBtnX = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_X),
 			mXboxBtnY = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_Y),
 			mXboxBtnLb = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_LB),
-			mBtn6 = new JoystickButton(mJoystick1, 6), mBtn7 = new JoystickButton(mJoystick1, 7),
-			mBtn8 = new JoystickButton(mJoystick1, 8);
+			mXboxBtnRb = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_RB),
+			mXboxBtnLt = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_LT),
+			mXboxBtnRt = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_RT),
+			mXboxBtnLftStk = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_LEFT_STICK_BTN),
+			mXboxBtnRghtStk = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_RIGHT_STICK_BTN),
+			mXboxBtnBack = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_BACK),
+			mXboxBtnStart = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_START);
 
 	public ADXRS450_Gyro mGyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 	// public Accelerometer mAccelerometer = new ADXL345_I2C(I2C.Port.kOnboard,
 	// Accelerometer.Range.k4G, 0x3A);
 	public Accelerometer mAccelerometer = new BuiltInAccelerometer(Accelerometer.Range.k4G);// TODO: TEST, ACC
+	public TalonSRX mTalon1 = new TalonSRX(0);
+	public DigitalInput mLimitSwitchUp = new DigitalInput(RobotMap.SENSOR.NUM_LSW_UP);
+	public DigitalInput mLimitSwitchMID = new DigitalInput(RobotMap.SENSOR.NUM_LSW_MID);
+	public DigitalInput mLimitSwitchDw = new DigitalInput(RobotMap.SENSOR.NUM_LSW_DW);
 
 	public HashMap<String, CmdBase> mCommands = new HashMap<String, CmdBase>();
 
 	public OI() {
+		// mTalon1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,
+		// 0, 10);
+		// mTalon1.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 1, 10);
+		mTalon1.set(ControlMode.PercentOutput, 0.0); // Disable output coz not needed
 	}
 
 	public void mapOI() {
@@ -73,12 +89,7 @@ public class OI {
 		logger.info("OI map");
 		EmergencyStopCommand mEmergencyStopCommand = new EmergencyStopCommand();
 		mXboxBtnB.whileHeld(mEmergencyStopCommand);
-		EmergencyRecoverCommand mEmergencyRecoverCommand = new EmergencyRecoverCommand();
-		mXboxBtnB.whenReleased(mEmergencyRecoverCommand);
-		StraightDriveCommand mStraightDriveFCommand = new StraightDriveCommand(0.9);
-		mXboxBtnY.whileActive(mStraightDriveFCommand);
-		StraightDriveCommand mStraightDriveBCommand = new StraightDriveCommand(-0.9);
-		mXboxBtnA.whileActive(mStraightDriveBCommand);
-		mXboxBtnX.whileActive(new AngleTurnCommand(40));
+		mXboxBtnStart.whileHeld(new AutoGrabCubeCommand(0.6));
+
 	}
 }

@@ -5,9 +5,6 @@ import java.util.logging.Logger;
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.RobotMap;
 
-import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.Scheduler;
-
 public class EmergencyStopCommand extends CmdBase {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(EmergencyStopCommand.class.getName());
@@ -39,7 +36,8 @@ public class EmergencyStopCommand extends CmdBase {
 		RobotMap.MOTOR.TELE_SPD_FACTOR = 0;
 		RobotMap.MOTOR.TELE_ANG_FACTOR = 0;
 		Robot.EMERGENCY_HALT = true;
-		Robot.m_ChasisDriveSubsystem.mDriveArcade(0, 0);
+		Robot.m_ChasisDriveSubsystem.stopDrive();
+		System.exit(-1);
 		logger.info("Emergency stop!");
 	}
 
@@ -58,7 +56,6 @@ public class EmergencyStopCommand extends CmdBase {
 		RobotMap.MOTOR.TELE_SPD_FACTOR = this.SPD_FACTOR_BAK;
 		RobotMap.MOTOR.TELE_ANG_FACTOR = this.ANG_FACTOR_BAK;
 		Robot.EMERGENCY_HALT = false;
-		System.exit(-1);
 		logger.info("Instance destroyed");
 		EmergencyStopCommand.instance = null;
 	}
