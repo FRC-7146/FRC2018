@@ -25,21 +25,34 @@ public class Utils {
 		return new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
 	}
 
-	public static void release(Object o) {
+	public static void release(Mat o) {
 		if (o != null) {
-			((Mat) o).release();
+			try {
+				((Mat) o).release();
+			} finally {
+
+			}
 		}
 	}
 
 	public static void release(Object[] os) {
 		for (Object o : os) {
-			release(o);
+			try {
+				release((Mat) o);
+			} finally {
+
+			}
 		}
 	}
 
-	public static void release(List<Object> os) {
-		release(os.toArray());
+	public static void release(List<Mat> os) {
+		for (Object o : os) {
+			try {
+				((Mat) o).release();
+			} finally {
 
+			}
+		}
 	}
 
 }

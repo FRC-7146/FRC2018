@@ -14,8 +14,10 @@ import org.usfirst.frc.team7146.robot.commands.AngleTurnCommand;
 import org.usfirst.frc.team7146.robot.commands.CmdBase;
 import org.usfirst.frc.team7146.robot.commands.EmergencyRecoverCommand;
 import org.usfirst.frc.team7146.robot.commands.EmergencyStopCommand;
+import org.usfirst.frc.team7146.robot.commands.Lift2MidCommand;
 import org.usfirst.frc.team7146.robot.commands.StraightDriveCommand;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
+import org.usfirst.frc.team7146.robot.subsystems.LiftSubsystem.POSITION;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -82,42 +84,6 @@ public class OI {
 		logger.info("OI map");
 		EmergencyStopCommand mEmergencyStopCommand = new EmergencyStopCommand();
 		mXboxBtnB.whileHeld(mEmergencyStopCommand);
-		EmergencyRecoverCommand mEmergencyRecoverCommand = new EmergencyRecoverCommand();
-		mXboxBtnB.whenReleased(mEmergencyRecoverCommand);
-		StraightDriveCommand mStraightDriveFCommand = new StraightDriveCommand(0.9);
-		mXboxBtnY.whileActive(mStraightDriveFCommand);
-		StraightDriveCommand mStraightDriveBCommand = new StraightDriveCommand(-0.9);
-		mXboxBtnA.whileActive(mStraightDriveBCommand);
-		mXboxBtnX.whileActive(new AngleTurnCommand(0, 40));
-		mXboxBtnLt.whileHeld(new Command() {
-			@Override
-			protected void initialize() {
-				if (DriverStation.getInstance().isOperatorControl() && DriverStation.getInstance().isTest()) {
-					ChasisDriveSubsystem.LOCK_OVERRIDE = false;
-				} else {
-					ChasisDriveSubsystem.LOCK_OVERRIDE = true;
 
-				}
-			}
-
-			@Override
-			protected void execute() {
-			}
-
-			@Override
-			protected boolean isFinished() {
-				return false;
-			}
-
-			@Override
-			protected void end() {
-				if (DriverStation.getInstance().isOperatorControl() && DriverStation.getInstance().isTest()) {
-					ChasisDriveSubsystem.LOCK_OVERRIDE = true;
-				} else {
-					ChasisDriveSubsystem.LOCK_OVERRIDE = false;
-
-				}
-			}
-		});
 	}
 }

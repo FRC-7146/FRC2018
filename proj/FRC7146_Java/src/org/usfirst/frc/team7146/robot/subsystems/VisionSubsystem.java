@@ -11,6 +11,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import edu.wpi.cscore.CvSink;
@@ -18,6 +19,7 @@ import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import io.github.d0048.Utils;
 import io.github.d0048.vision.VisualTarget;
 
@@ -27,7 +29,7 @@ public class VisionSubsystem extends Subsystem {
 	public CameraServer mCameraServer = CameraServer.getInstance();
 	public UsbCamera mUsbCamera = mCameraServer.startAutomaticCapture();
 	CvSink cvSink = mCameraServer.getVideo();
-	CvSource cvSrcOut;
+	CvSource cvSrcOut, cvSrcMask;
 	// MjpegServer mjpegServer = mCameraServer.addServer("Cubejpeg");
 	public boolean VisionDebug = false;
 
@@ -36,6 +38,7 @@ public class VisionSubsystem extends Subsystem {
 		this.mUsbCamera.setFPS(10);
 		this.mUsbCamera.setResolution(160, 120);
 		cvSrcOut = mCameraServer.putVideo("src out", 160, 120);
+		cvSrcMask = mCameraServer.putVideo("src mask", 160, 120);
 		this.cvSrcOut.setFPS(1);
 		// this.mjpegServer.setSource(this.cvSrcOut);
 		// this.mUsbCamera.setExposureAuto();
@@ -54,7 +57,7 @@ public class VisionSubsystem extends Subsystem {
 		int max_area = -1;
 		MatOfPoint max = null;
 		for (MatOfPoint cnt : cnts) {
-			if (Imgproc.contourArea(cnt) > max_area) {
+			if (Imgproc.contourArea(cnt) >= max_area) {
 				Utils.release(max);
 				max = cnt;
 			}
@@ -63,12 +66,13 @@ public class VisionSubsystem extends Subsystem {
 	}
 
 	Scalar lowerY = new Scalar(20, 90, 90);
-	Scalar upperY = new Scalar(30, 250, 250);
+	Scalar upperY = new Scalar(35, 250, 250);
 
 	/**
 	 * 
 	 * @return null if nothing found
 	 */
+	double minSize = 10;
 
 	public VisualTarget findCube() throws Exception {
 		// TODO
@@ -84,13 +88,13 @@ public class VisionSubsystem extends Subsystem {
 		toRelsease.add(cubeMatHSV);
 		Imgproc.cvtColor(cubeMat, cubeMatHSV, Imgproc.COLOR_BGR2HSV);
 
-		/*
-		 * Mat cubeMatBlur = new Mat(); toRelsease.add(cubeMatBlur);
-		 * Imgproc.GaussianBlur(cubeMatHSV, cubeMatBlur, new Size(3, 3), 0);
-		 * 
-		 * Mat cubeMatFilter = new Mat(); toRelsease.add(cubeMatFilter);
-		 * Imgproc.bilateralFilter(cubeMatBlur, cubeMatFilter, 9, 9, 75);
-		 */
+		Mat cubeMatBlur = new Mat();
+		toRelsease.add(cubeMatBlur);
+		Imgproc.GaussianBlur(cubeMatHSV, cubeMatBlur, new Size(3, 3), 0);
+
+		Mat cubeMatFilter = new Mat();
+		toRelsease.add(cubeMatFilter);
+		Imgproc.bilateralFilter(cubeMatBlur, cubeMatFilter, 9, 9, 75);
 
 		Mat cubeMask = cubeMatHSV.clone();
 		toRelsease.add(cubeMask);
@@ -109,17 +113,32 @@ public class VisionSubsystem extends Subsystem {
 		max.convertTo(max2f, CvType.CV_32F);
 		toRelsease.add(max2f);
 
-		Imgproc.drawContours(cubeMat, contours, -1, new Scalar(100, 100, 256), 4);
+		if (Imgproc.contourArea(max2f) > minSize) {
+			Imgproc.drawContours(cubeMat, contours, -1, new Scalar(100, 100, 256), 4);
+		}
 		RotatedRect cube = Imgproc.minAreaRect(max2f);
 		VisualTarget ret = new VisualTarget(cube.center, cube.size);
-		logger.info("Detected:" + cube.toString());
+		if (VisionDebug) {
+			logger.info("Detected:" + cube.toString());
+		}
 
-		this.dispFram(cubeMask);
-		// this.dispFram(cubeMat);
+		if (cube.size.area() > minSize) {
+			SmartDashboard.putNumber("Cube X:", cube.center.x);
+			SmartDashboard.putNumber("Cube Y:", cube.center.y);
+			SmartDashboard.putNumber("Cube Size", cube.size.area());
+		}
+		this.cvSrcMask.putFrame(cubeMask);
+		this.cvSrcOut.putFrame(cubeMat);
 
-		Utils.release(toRelsease);
+		for (Mat m : toRelsease) {
+			try {
+				m.release();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 
-		return ret;
+		return ret.size.area() > minSize ? ret : null;
 	}
 
 	public void dispFram(Mat m) {

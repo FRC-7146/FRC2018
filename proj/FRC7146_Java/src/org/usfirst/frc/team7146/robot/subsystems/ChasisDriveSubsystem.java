@@ -49,7 +49,8 @@ public class ChasisDriveSubsystem extends Subsystem {
 	 */
 	public PIDController mPIDArcadeAngCtler;// Arcade drive mode
 	public PIDController mPIDArcadeDispCtler;// Arcade drive mode
-	public double requestedDisp = 0, requestedSpd = 0, requestedAng = 0;
+	public double requestedDisp = Robot.m_GyroSubsystem.getPosition(), requestedSpd = 0,
+			requestedAng = Robot.m_GyroSubsystem.getAngle();
 
 	/**
 	 * Either (arcade, spd_pid, ang_pid) Or (Tank, left_pid, right_pid) !!!Ang pid
@@ -104,7 +105,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 			this.mPIDArcadeAngCtler.setInputRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.mPIDArcadeAngCtler.setOutputRange(-0.9, 0.9);
 			this.mPIDArcadeAngCtler.setContinuous(true);
-			//this.mPIDArcadeAngCtler.enable();
+			this.mPIDArcadeAngCtler.enable();// TODO: Enable
 			// Arcade angle
 			// pid--------------------------------------------------------------
 
@@ -145,7 +146,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 		this.mPIDArcadeDispCtler.setInputRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
 		this.mPIDArcadeDispCtler.setOutputRange(-0.9, 0.9);
 		this.mPIDArcadeDispCtler.setContinuous(false);
-		// this.mPIDArcadeDispCtler.enable();
+		this.mPIDArcadeDispCtler.enable();// TODO: Enable
 	}
 
 	public void initDefaultCommand() {
@@ -186,8 +187,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 			logger.warning("Threadhold reached, cancelled");
 			return;
 		}
-		mDifferentialDrive.arcadeDrive(xSpeed * RobotMap.MOTOR.TELE_SPD_FACTOR, // TODO: set
-				zRot * RobotMap.MOTOR.TELE_ANG_FACTOR);
+		mDifferentialDrive.arcadeDrive(xSpeed * RobotMap.MOTOR.TELE_SPD_FACTOR, zRot * RobotMap.MOTOR.TELE_ANG_FACTOR);
 		writeStatus();
 	}
 
@@ -212,7 +212,8 @@ public class ChasisDriveSubsystem extends Subsystem {
 
 	public void mArcadeRequestAbsolute(double disp, double rot) {
 		this.requestedDisp += disp;
-		this.requestedAng += rot - Robot.m_GyroSubsystem.getAbsoluteAngle();
+		rot -= 1;
+		this.requestedAng = (requestedAng - requestedAng % 360) + rot;
 		mPIDArcadeAngCtler.setSetpoint(this.requestedAng);
 		mPIDArcadeDispCtler.setSetpoint(this.requestedDisp);
 		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
@@ -234,8 +235,9 @@ public class ChasisDriveSubsystem extends Subsystem {
 	}
 
 	public void mArcadeDispatch() {
-		if (this.requestedSpd == 0) {
+		if (this.requestedSpd >= 0.05) {
 			this.mDriveArcade(this.requestedSpd, this.mPIDArcadeAngCtler.get());
+			SmartDashboard.putBoolean("Use speed", false);
 		} else {
 			this.mDriveArcade(this.mPIDArcadeDispCtler.get(), mPIDArcadeAngCtler.get());
 		}
@@ -248,6 +250,9 @@ public class ChasisDriveSubsystem extends Subsystem {
 		SmartDashboard.putNumber("Exec Angle: ", this.mPIDArcadeAngCtler.get());
 		SmartDashboard.putNumber("Measured angle", Robot.m_GyroSubsystem.getAngle());
 		SmartDashboard.putNumber("Gyro ang", this.mGyro.getAngle());
+		SmartDashboard.putNumber("Gyro Absolute ang", Robot.m_GyroSubsystem.getAbsoluteAngle());
+		SmartDashboard.putNumber("Encoder displacement", Robot.m_GyroSubsystem.getPosition());
+		SmartDashboard.putNumber("Requested displacement", Robot.m_GyroSubsystem.getPosition());
 	}
 
 	public void resetAngleState() {

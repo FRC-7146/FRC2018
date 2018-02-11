@@ -3,21 +3,27 @@ package org.usfirst.frc.team7146.robot.commands;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.Robot;
+import org.usfirst.frc.team7146.robot.RobotMap;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
+import org.usfirst.frc.team7146.robot.subsystems.LiftSubsystem;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class TeleopArcadeDriveCommand extends CmdBase {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(TeleopArcadeDriveCommand.class.getName());
 	public static CmdBase instance;
-	public static boolean TeleArcadeDriveDebug = true;
+	public static boolean TeleArcadeDriveDebug = false;
 
 	private Joystick mJoystick = Robot.m_oi.mJoystick1;
 	private ChasisDriveSubsystem mChasis = Robot.m_ChasisDriveSubsystem;
+	private LiftSubsystem mLift = Robot.m_LiftSubsystem;
 
 	public TeleopArcadeDriveCommand() {
 		super("TeleopArcadeDriveCommand", 100);
+		// DO NOT INTERUPT
 		requires(Robot.m_ChasisDriveSubsystem);
 
 		logger.info("Instance created");
@@ -25,14 +31,12 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 		Robot.m_oi.mCommands.put(this.getName(), this);
 	}
 
-	// Called just before this Command runs the first time
 	@Override
 	protected void initialize() {
 	}
 
 	boolean isReturning = false;
 
-	// Called repeatedly when this Command is scheduled to run
 	@Override
 	protected void execute() {
 		if (!Robot.cmdCanRun(this)) {
@@ -42,33 +46,82 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 		double speed = Robot.m_oi.mJoystick1.getRawAxis(3);// Right x
 		double ang = Robot.m_oi.mJoystick1.getTwist();
 		double pov = mJoystick.getPOV();
-		if ((ang > -0.1 && ang < 0.1) && (speed < 0.18 && speed > -0.18) && pov == -1) {
-			ChasisDriveSubsystem.LOCK_OVERRIDE = false;
-		} else {
-			ChasisDriveSubsystem.LOCK_OVERRIDE = true;
-			mChasis.mArcadeForceDrive(speed, ang);
-			if (mJoystick.getPOV() != -1) {
-				mChasis.mArcadeRequestAbsolute(0, pov);
+		SmartDashboard.putNumber("POV", pov);
+		if ((ang > -0.05 && ang < 0.05) && (speed < 0.05 && speed > -0.05)) {// not operating
+
+			if (!DriverStation.getInstance().isOperatorControl()) {// otherwise will be handle by operator
+				ChasisDriveSubsystem.LOCK_OVERRIDE = false;
 			}
+
+		} else {// operating
+
+			if (!DriverStation.getInstance().isOperatorControl()) {// otherwise will be handle by operator
+				ChasisDriveSubsystem.LOCK_OVERRIDE = true;
+			}
+
+			mChasis.mArcadeForceDrive(speed, ang);
 			isReturning = true;
 		}
 
 		if (isReturning) {
-			Robot.m_ChasisDriveSubsystem.resetAngleState();
+			mChasis.resetAngleState();
 			isReturning = false;
 		}
+
+		if (pov != -1) {
+			mChasis.mArcadeRequestAbsolute(0, pov);
+		}
+
+		if (Robot.m_oi.mXboxBtnY.get()) {
+			mLift.up();
+		}
+		if (Robot.m_oi.mXboxBtnX.get()) {
+			mLift.stop();
+		}
+		if (Robot.m_oi.mXboxBtnA.get()) {
+			mLift.down();
+		}
+
+		if (Robot.m_oi.mXboxBtnRb.get()) {
+			Robot.m_oi.collectorWheelMotors.set(-0.9);
+		} else if (Robot.m_oi.mXboxBtnRt.get()) {
+			if (Robot.m_oi.collectorWheelMotors.get() != 0) {
+				Robot.m_oi.collectorWheelMotors.stopMotor();
+			} else {
+				Robot.m_oi.collectorWheelMotors.set(0.9);
+			}
+		}
+
+		if (DriverStation.getInstance().isOperatorControl()) {
+			if (Robot.m_oi.mXboxBtnLt.get()) {
+				mChasis.LOCK_OVERRIDE = false;
+			} else {
+				mChasis.LOCK_OVERRIDE = true;
+				mChasis.resetAngleState();
+			}
+		} else {
+			if (Robot.m_oi.mXboxBtnLt.get()) {
+				mChasis.LOCK_OVERRIDE = true;
+				mChasis.resetAngleState();
+			} else {
+				mChasis.LOCK_OVERRIDE = false;
+			}
+		}
+
+		if (Robot.m_oi.mXboxBtnLb.get()) {
+			mChasis.mArcadeRequest(10, 0);
+		}
+
 		if (TeleArcadeDriveDebug) {
 			logger.info("Requested: " + speed + ", " + ang + ", " + pov);
 		}
 	}
 
-	// Make this return true when this Command no longer needs to run execute()
 	@Override
 	protected boolean isFinished() {
 		return false;
 	}
 
-	// Called once after isFinished returns true
 	@Override
 	protected void end() {
 		super.end();

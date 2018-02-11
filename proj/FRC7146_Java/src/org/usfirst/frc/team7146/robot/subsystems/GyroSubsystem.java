@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 public class GyroSubsystem extends Subsystem {
 	private static final Logger logger = Logger.getLogger(GyroSubsystem.class.getName());
+	public static final double DISP_2_METER = 8885;
 
 	public Gyro mGyro = Robot.m_oi.mGyro;
 	public Accelerometer mAccel = Robot.m_oi.mAccelerometer;

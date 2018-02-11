@@ -15,7 +15,7 @@ public class AngleTurnCommand extends CmdBase {
 
 	public AngleTurnCommand(double disp, double ang) {
 		super("AngleTurnCommand", 99);
-requires(Robot.m_ChasisDriveSubsystem);
+		requires(Robot.m_ChasisDriveSubsystem);
 		requires(Robot.m_GyroSubsystem);
 
 		logger.info("Instance created");

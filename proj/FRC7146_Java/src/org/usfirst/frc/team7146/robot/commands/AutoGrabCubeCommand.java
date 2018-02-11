@@ -37,6 +37,8 @@ public class AutoGrabCubeCommand extends CmdBase {
 
 	}
 
+	VisualTarget lastTarget = null;
+
 	// Called repeatedly when this Command is scheduled to run
 	@Override
 	protected void execute() {
@@ -44,7 +46,12 @@ public class AutoGrabCubeCommand extends CmdBase {
 			return;
 		try {
 			VisualTarget target = mVision.findCube();
-			move2Target(target);
+			if (target != null) {
+				lastTarget = target;
+				move2Target(target);
+			} else {
+				move2Target(lastTarget);
+			}
 		} catch (Exception e) {
 			logger.throwing("Err calling find cube", "auto grab cube cmd", e);
 			e.printStackTrace();
@@ -56,10 +63,10 @@ public class AutoGrabCubeCommand extends CmdBase {
 		if (v == null)
 			return;
 		Point c = v.center;
-		if (c.x > 160 / 2) {
+		if (c.y > 160 / 2) {
 			mChasis.mArcadeRequest(spd, 0.2);
 		} else {
-			mChasis.mArcadeRequest(spd, 0.2);
+			mChasis.mArcadeRequest(spd, -0.2);
 		}
 	}
 
@@ -73,6 +80,7 @@ public class AutoGrabCubeCommand extends CmdBase {
 	@Override
 	protected void end() {
 		super.end();
+		mChasis.mArcadeRequest(0, 0);
 		logger.info("Instance destroyed");
 		AutoGrabCubeCommand.instance = null;
 	}
