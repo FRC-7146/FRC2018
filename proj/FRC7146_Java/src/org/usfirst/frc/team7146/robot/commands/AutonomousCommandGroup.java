@@ -2,7 +2,12 @@ package org.usfirst.frc.team7146.robot.commands;
 
 import java.util.logging.Logger;
 
+import javax.swing.plaf.basic.BasicBorders.RolloverButtonBorder;
+
 import org.usfirst.frc.team7146.robot.MatchInfo;
+import org.usfirst.frc.team7146.robot.Robot;
+
+import edu.wpi.first.wpilibj.command.Command;
 
 public class AutonomousCommandGroup extends CmdGroupBase {
 	private static final java.util.logging.Logger logger = Logger.getLogger(AutonomousCommandGroup.class.getName());
@@ -13,15 +18,22 @@ public class AutonomousCommandGroup extends CmdGroupBase {
 
 	public AutonomousCommandGroup(int priority) {// TODO: Timeout
 		this("AutonomouseCrommandGroup", priority);
+
+	}
+
+	public AutonomousCommandGroup(String name, int priority) {
+		super(name, priority);
+		addParallel(liftUp, 2);
 		leave();
 		if (MatchInfo.scale1 == 'L') {
 			addSequential(new AbsoluteAngleTurnCommand(0, 90));
 		} else {
 			addSequential(new AbsoluteAngleTurnCommand(0, -90));
 		}
+		addParallel(collectorOut, 0.5);
 		// TODO: Put cube
+		addParallel(collectorIn, 0.5);
 		addSequential(new AutoGrabCubeCommand(0.1), 5);
-
 	}
 
 	public void leave() {
@@ -71,8 +83,97 @@ public class AutonomousCommandGroup extends CmdGroupBase {
 
 	}
 
-	public AutonomousCommandGroup(String name, int priority) {
-		super(name, priority);
-	}
+	Command liftUp = new Command() {
+		@Override
+		protected void initialize() {
+			if (!Robot.m_LiftSubsystem.isUp()) {
+				Robot.m_LiftSubsystem.up();
+			} else {
+				Robot.m_LiftSubsystem.stop();
+			}
+		}
 
+		@Override
+		protected void end() {
+			Robot.m_LiftSubsystem.stop();
+		}
+
+		@Override
+		protected void interrupted() {
+			end();
+		}
+
+		@Override
+		protected boolean isFinished() {
+			return false;
+		}
+	};
+	Command liftDown = new Command() {
+		@Override
+		protected void initialize() {
+			// if (!Robot.m_LiftSubsystem.isUp()) {
+			Robot.m_LiftSubsystem.down();
+			// } else {
+			// Robot.m_LiftSubsystem.stop();
+			// }
+		}
+
+		@Override
+		protected void end() {
+			Robot.m_LiftSubsystem.stop();
+		}
+
+		@Override
+		protected void interrupted() {
+			end();
+		}
+
+		@Override
+		protected boolean isFinished() {
+			return Robot.m_LiftSubsystem.isDown();
+		}
+	};
+	Command collectorIn = new Command() {
+		@Override
+		protected void initialize() {
+			Robot.m_oi.collectorWheelMotors.set(0.9);
+		}
+
+		@Override
+		protected void end() {
+			Robot.m_oi.collectorWheelMotors.stopMotor();
+		}
+
+		@Override
+		protected void interrupted() {
+			end();
+		}
+
+		@Override
+		protected boolean isFinished() {
+			return false;
+		}
+	};
+	Command collectorOut = new Command() {
+
+		@Override
+		protected void initialize() {
+			Robot.m_oi.collectorWheelMotors.set(-0.9);
+		}
+
+		@Override
+		protected void end() {
+			Robot.m_oi.collectorWheelMotors.stopMotor();
+		}
+
+		@Override
+		protected void interrupted() {
+			end();
+		}
+
+		@Override
+		protected boolean isFinished() {
+			return false;
+		}
+	};
 }

@@ -47,21 +47,26 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 		double ang = Robot.m_oi.mJoystick1.getTwist();
 		double pov = mJoystick.getPOV();
 		SmartDashboard.putNumber("POV", pov);
-		if ((ang > -0.05 && ang < 0.05) && (speed < 0.05 && speed > -0.05)) {// not operating
 
-			if (!DriverStation.getInstance().isOperatorControl()) {// otherwise will be handle by operator
-				ChasisDriveSubsystem.LOCK_OVERRIDE = false;
-			}
+		// if (ChasisDriveSubsystem.LOCK_OVERRIDE) {// not operating
 
-		} else {// operating
+		// if (!DriverStation.getInstance().isOperatorControl()) {// otherwise will be
+		// handle by operator
+		// ChasisDriveSubsystem.LOCK_OVERRIDE = false;
+		// }
 
-			if (!DriverStation.getInstance().isOperatorControl()) {// otherwise will be handle by operator
-				ChasisDriveSubsystem.LOCK_OVERRIDE = true;
-			}
+		// } else {// operating
 
+		// if (!DriverStation.getInstance().isOperatorControl()) {// otherwise will be
+		// handle by operator
+		// ChasisDriveSubsystem.LOCK_OVERRIDE = true;
+		// }
+
+		if (ChasisDriveSubsystem.LOCK_OVERRIDE) {
 			mChasis.mArcadeForceDrive(speed, ang);
 			isReturning = true;
 		}
+		// }
 
 		if (isReturning) {
 			mChasis.resetAngleState();
@@ -72,14 +77,24 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 			mChasis.mArcadeRequestAbsolute(0, pov);
 		}
 
-		if (Robot.m_oi.mXboxBtnY.get()) {
-			mLift.up();
-		}
-		if (Robot.m_oi.mXboxBtnX.get()) {
+		if (Robot.m_oi.mXboxBtnY.get()) {// up
+			if (mLift.isUp()) {
+				mLift.stop();
+			} else {
+				mLift.up();
+			}
+		} else if (Robot.m_oi.mXboxBtnX.get()) {// stop
 			mLift.stop();
-		}
-		if (Robot.m_oi.mXboxBtnA.get()) {
-			mLift.down();
+		} else if (Robot.m_oi.mXboxBtnA.get()) {// down
+			if (mLift.isDown()) {
+				mLift.stop();
+			} else {
+				mLift.down();
+			}
+		} else {
+			if (mLift.isDown() || mLift.isMiddle() || mLift.isUp()) {
+				mLift.stop();
+			}
 		}
 
 		if (Robot.m_oi.mXboxBtnRb.get()) {
@@ -94,17 +109,17 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 
 		if (DriverStation.getInstance().isOperatorControl()) {
 			if (Robot.m_oi.mXboxBtnLt.get()) {
-				mChasis.LOCK_OVERRIDE = false;
+				ChasisDriveSubsystem.LOCK_OVERRIDE = false;
 			} else {
-				mChasis.LOCK_OVERRIDE = true;
+				ChasisDriveSubsystem.LOCK_OVERRIDE = true;
 				mChasis.resetAngleState();
 			}
 		} else {
 			if (Robot.m_oi.mXboxBtnLt.get()) {
-				mChasis.LOCK_OVERRIDE = true;
+				ChasisDriveSubsystem.LOCK_OVERRIDE = true;
 				mChasis.resetAngleState();
 			} else {
-				mChasis.LOCK_OVERRIDE = false;
+				ChasisDriveSubsystem.LOCK_OVERRIDE = false;
 			}
 		}
 

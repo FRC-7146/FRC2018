@@ -85,7 +85,7 @@ public class Robot extends TimedRobot {
 	}
 
 	public void mPeriodic() {// execute everywhere except disable
-		// chasisUpdateCmd.updateAndDispatch();
+		m_LiftSubsystem.writeStatus();
 	}
 
 	/**

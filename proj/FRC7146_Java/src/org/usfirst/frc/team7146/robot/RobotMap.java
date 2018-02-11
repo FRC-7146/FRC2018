@@ -57,14 +57,16 @@ public class RobotMap {
 		public static final int NUM_XBOX_RB = 6;
 		public static final int NUM_XBOX_LT = 7;
 		public static final int NUM_XBOX_RT = 8;
-		public static final int NUM_XBOX_LEFT_STICK_BTN = 9;
-		public static final int NUM_XBOX_RIGHT_STICK_BTN = 10;
+		public static final int NUM_XBOX_LEFT_STICK_BTN = 11;
+		public static final int NUM_XBOX_RIGHT_STICK_BTN = 12;
+		public static final int NUM_XBOX_BACK = 9;
+		public static final int NUM_XBOX_START = 10;
 	}
 
 	public static class SENSOR {
-		public static final int NUM_LSW_UP = 0;
-		public static final int NUM_LSW_MID = 1;
-		public static final int NUM_LSW_DW = 2;
+		public static final int NUM_LSW_UP = 1;
+		public static final int NUM_LSW_MID = 2;
+		public static final int NUM_LSW_DW = 0;
 	}
 
 	public enum STATUS {

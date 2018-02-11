@@ -7,6 +7,7 @@ import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 import org.usfirst.frc.team7146.robot.subsystems.VisionSubsystem;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import io.github.d0048.vision.VisualTarget;
 
 public class AutoGrabCubeCommand extends CmdBase {
@@ -65,8 +66,10 @@ public class AutoGrabCubeCommand extends CmdBase {
 		Point c = v.center;
 		if (c.y > 160 / 2) {
 			mChasis.mArcadeRequest(spd, 0.2);
+			SmartDashboard.putString("Vision", "Right");
 		} else {
 			mChasis.mArcadeRequest(spd, -0.2);
+			SmartDashboard.putString("Vision", "Left");
 		}
 	}
 

@@ -58,7 +58,10 @@ public class VisionSubsystem extends Subsystem {
 		MatOfPoint max = null;
 		for (MatOfPoint cnt : cnts) {
 			if (Imgproc.contourArea(cnt) >= max_area) {
-				Utils.release(max);
+				try {
+					(max).release();
+				} catch (Exception e) {
+				}
 				max = cnt;
 			}
 		}

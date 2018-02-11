@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.commands.AngleTurnCommand;
+import org.usfirst.frc.team7146.robot.commands.AutoGrabCubeCommand;
 import org.usfirst.frc.team7146.robot.commands.CmdBase;
 import org.usfirst.frc.team7146.robot.commands.EmergencyRecoverCommand;
 import org.usfirst.frc.team7146.robot.commands.EmergencyStopCommand;
@@ -59,7 +60,11 @@ public class OI {
 			mXboxBtnLb = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_LB),
 			mXboxBtnRb = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_RB),
 			mXboxBtnLt = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_LT),
-			mXboxBtnRt = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_RT);
+			mXboxBtnRt = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_RT),
+			mXboxBtnLftStk = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_LEFT_STICK_BTN),
+			mXboxBtnRghtStk = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_RIGHT_STICK_BTN),
+			mXboxBtnBack = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_BACK),
+			mXboxBtnStart = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_START);
 
 	public ADXRS450_Gyro mGyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 	// public Accelerometer mAccelerometer = new ADXL345_I2C(I2C.Port.kOnboard,
@@ -84,6 +89,7 @@ public class OI {
 		logger.info("OI map");
 		EmergencyStopCommand mEmergencyStopCommand = new EmergencyStopCommand();
 		mXboxBtnB.whileHeld(mEmergencyStopCommand);
+		mXboxBtnStart.whileHeld(new AutoGrabCubeCommand(0.6));
 
 	}
 }

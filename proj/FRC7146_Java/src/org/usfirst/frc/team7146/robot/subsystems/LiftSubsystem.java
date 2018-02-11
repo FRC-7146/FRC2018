@@ -37,16 +37,16 @@ public class LiftSubsystem extends Subsystem {
 	}
 
 	public boolean isUp() {
-		return mUpSw.get();
+		return !mUpSw.get();
 	}
 
 	public boolean isMiddle() {
-		return mMidSw.get();
+		return !mMidSw.get();
 
 	}
 
 	public boolean isDown() {
-		return mDwSw.get();
+		return !mDwSw.get();
 	}
 
 	public void writeStatus() {
