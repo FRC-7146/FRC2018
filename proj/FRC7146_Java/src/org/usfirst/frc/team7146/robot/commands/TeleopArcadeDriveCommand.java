@@ -86,11 +86,10 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 		} else if (Robot.m_oi.mXboxBtnX.get()) {// stop
 			mLift.stop();
 		} else if (Robot.m_oi.mXboxBtnA.get()) {// down
-			if (mLift.isDown()) {
-				mLift.stop();
-			} else {
-				mLift.down();
-			}
+			/*
+			 * if (mLift.isDown()) { mLift.stop(); } else { mLift.down(); }
+			 */
+			mLift.down();
 		} else {
 			if (mLift.isDown() || mLift.isMiddle() || mLift.isUp()) {
 				mLift.stop();
