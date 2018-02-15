@@ -95,13 +95,13 @@ public class ChasisDriveSubsystem extends Subsystem {
 					if (!LOCK_OVERRIDE) {
 						mArcadeDispatch();
 					} else {
-						logger.info("Chassis pid Override");
+						//logger.info("Chassis pid Override");
 						resetAngleState();
 					}
 
 				}
 			});
-			this.mPIDArcadeAngCtler.setAbsoluteTolerance(8);
+			this.mPIDArcadeAngCtler.setAbsoluteTolerance(3);
 			this.mPIDArcadeAngCtler.setInputRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.mPIDArcadeAngCtler.setOutputRange(-0.9, 0.9);
 			this.mPIDArcadeAngCtler.setContinuous(true);
@@ -136,13 +136,13 @@ public class ChasisDriveSubsystem extends Subsystem {
 					if (!LOCK_OVERRIDE) {
 						mArcadeDispatch();
 					} else {
-						logger.info("Chassis pid Override");
+						//logger.info("Chassis pid Override");
 						resetAngleState();
 					}
 				}
 			});
 		}
-		this.mPIDArcadeDispCtler.setAbsoluteTolerance(8);
+		this.mPIDArcadeDispCtler.setAbsoluteTolerance(5);
 		this.mPIDArcadeDispCtler.setInputRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
 		this.mPIDArcadeDispCtler.setOutputRange(-0.9, 0.9);
 		this.mPIDArcadeDispCtler.setContinuous(false);
@@ -216,8 +216,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 		this.requestedAng = (requestedAng - requestedAng % 360) + rot;
 		mPIDArcadeAngCtler.setSetpoint(this.requestedAng);
 		mPIDArcadeDispCtler.setSetpoint(this.requestedDisp);
-		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
-		SmartDashboard.putNumber("Requested Disp", requestedSpd);
+		writeStatus();
 		if (CHASIS_DEBUG) {
 			logger.info("Got an absolute request of" + disp + ", " + rot);
 		}
@@ -239,7 +238,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 			this.mDriveArcade(this.requestedSpd, this.mPIDArcadeAngCtler.get());
 			SmartDashboard.putBoolean("Use speed", false);
 		} else {
-			this.mDriveArcade(this.mPIDArcadeDispCtler.get(), mPIDArcadeAngCtler.get());
+			this.mDriveArcade(-this.mPIDArcadeDispCtler.get(), mPIDArcadeAngCtler.get());
 		}
 		writeStatus();
 	}
@@ -253,6 +252,8 @@ public class ChasisDriveSubsystem extends Subsystem {
 		SmartDashboard.putNumber("Gyro Absolute ang", Robot.m_GyroSubsystem.getAbsoluteAngle());
 		SmartDashboard.putNumber("Encoder displacement", Robot.m_GyroSubsystem.getPosition());
 		SmartDashboard.putNumber("Requested displacement", Robot.m_GyroSubsystem.getPosition());
+		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
+		SmartDashboard.putNumber("Requested Disp", requestedDisp);
 	}
 
 	public void resetAngleState() {

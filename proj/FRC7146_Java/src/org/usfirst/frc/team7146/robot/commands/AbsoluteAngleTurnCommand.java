@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 import org.usfirst.frc.team7146.robot.Robot;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 
-
 public class AbsoluteAngleTurnCommand extends CmdBase {
 
 	private static final java.util.logging.Logger logger = Logger.getLogger(AbsoluteAngleTurnCommand.class.getName());
@@ -25,13 +24,14 @@ public class AbsoluteAngleTurnCommand extends CmdBase {
 		AbsoluteAngleTurnCommand.instance = this;
 		Robot.m_oi.mCommands.put(this.getName(), this);
 
-		this.absDisp = absDisp;
+		this.absDisp = mChassis.requestedDisp + absDisp;
 		this.absAng = absAng;
 	}
 
 	// Called just before this Command runs the first time
 	@Override
 	protected void initialize() {
+		mChassis.mArcadeRequestAbsolute(absDisp, absAng);
 
 	}
 
@@ -40,13 +40,13 @@ public class AbsoluteAngleTurnCommand extends CmdBase {
 	protected void execute() {
 		if (!Robot.cmdCanRun(this))
 			return;
-		mChassis.mArcadeRequestAbsolute(absDisp, absAng);
 	}
 
 	// Make this return true when this Command no longer needs to run execute()
 	@Override
 	protected boolean isFinished() {
-		return Robot.m_ChasisDriveSubsystem.isOnPosition();
+		//return Robot.m_ChasisDriveSubsystem.isOnPosition();
+		return false;
 	}
 
 	// Called once after isFinished returns true

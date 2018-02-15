@@ -21,6 +21,7 @@ public class LiftSubsystem extends Subsystem {
 
 	public LiftSubsystem() {
 		super("LiftSubsystem");
+		Robot.m_oi.collectorWheelMotors.setSafetyEnabled(false);
 		// TODO Auto-generated constructor stub
 	}
 

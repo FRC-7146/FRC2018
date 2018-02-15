@@ -49,7 +49,10 @@ public class OI {
 	public SpeedController mRightMotor = new Spark(RobotMap.MOTOR.RIGHT_MOTOR_GROUP);
 	public DifferentialDrive mDifferentialDrive = new DifferentialDrive(mLeftMotor, mRightMotor);
 
-	public SpeedController collectorWheelMotors = new Spark(RobotMap.MOTOR.COLLECTOR_WHEEL_PORT);
+	public SpeedController collectorWheelMotor1 = new Spark(RobotMap.MOTOR.COLLECTOR_WHEEL_PORT1);
+	public SpeedController collectorWheelMotor2 = new Spark(RobotMap.MOTOR.COLLECTOR_WHEEL_PORT2);
+	public DifferentialDrive collectorWheelMotors = new DifferentialDrive(collectorWheelMotor1, collectorWheelMotor2);
+
 	public SpeedController liftMotor = new Spark(RobotMap.MOTOR.LIFT_PORT);
 
 	public Joystick mJoystick1 = new Joystick(0);
@@ -65,6 +68,9 @@ public class OI {
 			mXboxBtnRghtStk = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_RIGHT_STICK_BTN),
 			mXboxBtnBack = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_BACK),
 			mXboxBtnStart = new JoystickButton(mJoystick1, RobotMap.JOYSTICK.NUM_XBOX_START);
+
+	public Joystick mJoystick2 = new Joystick(1);
+	//public Button 
 
 	public ADXRS450_Gyro mGyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 	// public Accelerometer mAccelerometer = new ADXL345_I2C(I2C.Port.kOnboard,
@@ -88,7 +94,7 @@ public class OI {
 		/* Btn binding */
 		logger.info("OI map");
 		EmergencyStopCommand mEmergencyStopCommand = new EmergencyStopCommand();
-		mXboxBtnB.whileHeld(mEmergencyStopCommand);
+		mXboxBtnBack.whileHeld(mEmergencyStopCommand);
 		mXboxBtnStart.whileHeld(new AutoGrabCubeCommand(0.6));
 
 	}

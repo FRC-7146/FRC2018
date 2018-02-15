@@ -44,7 +44,7 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 			return;
 		}
 		double speed = Robot.m_oi.mJoystick1.getRawAxis(3);// Right x
-		double ang = Robot.m_oi.mJoystick1.getTwist();
+		double ang = Robot.m_oi.mJoystick1.getRawAxis(2);// Left y
 		double pov = mJoystick.getPOV();
 		SmartDashboard.putNumber("POV", pov);
 
@@ -77,12 +77,11 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 			mChasis.mArcadeRequestAbsolute(0, pov);
 		}
 
-		if (Robot.m_oi.mXboxBtnY.get()) {// up
-			if (mLift.isUp()) {
-				mLift.stop();
-			} else {
-				mLift.up();
-			}
+		if (Robot.m_oi.mXboxBtnY.get()) {
+			// up
+			/*
+			 * if (mLift.isUp()) { mLift.stop(); } else { mLift.up(); }
+			 */mLift.up();
 		} else if (Robot.m_oi.mXboxBtnX.get()) {// stop
 			mLift.stop();
 		} else if (Robot.m_oi.mXboxBtnA.get()) {// down
@@ -90,21 +89,18 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 			 * if (mLift.isDown()) { mLift.stop(); } else { mLift.down(); }
 			 */
 			mLift.down();
-		} else {
-			if (mLift.isDown() || mLift.isMiddle() || mLift.isUp()) {
-				mLift.stop();
-			}
-		}
+		} /*
+			 * else { mLift.stop(); }
+			 */
 
-		if (Robot.m_oi.mXboxBtnRb.get()) {
-			Robot.m_oi.collectorWheelMotors.set(-0.9);
-		} else if (Robot.m_oi.mXboxBtnRt.get()) {
-			if (Robot.m_oi.collectorWheelMotors.get() != 0) {
-				Robot.m_oi.collectorWheelMotors.stopMotor();
-			} else {
-				Robot.m_oi.collectorWheelMotors.set(0.9);
-			}
-		}
+		/*
+		 * if (Robot.m_oi.mXboxBtnRb.get()) { Robot.m_oi.collectorWheelMotors.set(-0.9);
+		 * } else if (Robot.m_oi.mXboxBtnRt.get()) { if
+		 * (Robot.m_oi.collectorWheelMotors.get() != 0) {
+		 * Robot.m_oi.collectorWheelMotors.stopMotor(); } else {
+		 * Robot.m_oi.collectorWheelMotors.set(0.9); } }
+		 */
+		Robot.m_oi.collectorWheelMotors.arcadeDrive(mJoystick.getRawAxis(0), mJoystick.getRawAxis(1));
 
 		if (DriverStation.getInstance().isOperatorControl()) {
 			if (Robot.m_oi.mXboxBtnLt.get()) {
@@ -124,6 +120,11 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 
 		if (Robot.m_oi.mXboxBtnLb.get()) {
 			mChasis.mArcadeRequest(10, 0);
+		}
+
+		int autoRelease = 100;
+		if (DriverStation.getInstance().isAutonomous() && autoRelease-- > 0) {
+			Robot.m_oi.collectorWheelMotors.arcadeDrive(0.9, 0);
 		}
 
 		if (TeleArcadeDriveDebug) {

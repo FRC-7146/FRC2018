@@ -68,14 +68,14 @@ public class VisionSubsystem extends Subsystem {
 		return max;
 	}
 
-	Scalar lowerY = new Scalar(20, 90, 90);
-	Scalar upperY = new Scalar(35, 250, 250);
+	Scalar lowerY = new Scalar(20, 80, 80);
+	Scalar upperY = new Scalar(45, 250, 250);
 
 	/**
 	 * 
 	 * @return null if nothing found
 	 */
-	double minSize = 10;
+	double minSize = 1;
 
 	public VisualTarget findCube() throws Exception {
 		// TODO

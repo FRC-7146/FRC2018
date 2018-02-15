@@ -13,7 +13,7 @@ import io.github.d0048.vision.VisualTarget;
 public class AutoGrabCubeCommand extends CmdBase {
 	private static final java.util.logging.Logger logger = Logger.getLogger(AutoGrabCubeCommand.class.getName());
 	public static CmdBase instance;
-	public static boolean AutoGrabCubeDebug = true;
+	public static boolean AutoGrabCubeDebug = false;
 
 	public VisionSubsystem mVision = Robot.m_VisionSubsystem;
 	ChasisDriveSubsystem mChasis = Robot.m_ChasisDriveSubsystem;

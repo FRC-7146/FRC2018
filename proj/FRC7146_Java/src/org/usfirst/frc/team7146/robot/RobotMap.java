@@ -21,7 +21,7 @@ public class RobotMap {
 
 	// private static final java.util.logging.Logger logger =
 	// Logger.getLogger(RobotMap.class.getName());
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 
 	public static class MOTOR {
 		/*
@@ -31,10 +31,11 @@ public class RobotMap {
 		 */
 		public static final int LEFT_MOTOR_GROUP = 0;
 		public static final int RIGHT_MOTOR_GROUP = 1;
-		public static final NumPID TANK_NUM_PID = new NumPID(2, 0, 0), ARCADE_SPD_NUM_PID = new NumPID(0.1, 0, 0),
-				ARCADE_ANG_NUM_PID = new NumPID(0.1, 0., 0.), LIFT_NUM_PID = new NumPID(2, 0, 0);
+		public static final NumPID TANK_NUM_PID = new NumPID(2, 0, 0), ARCADE_SPD_NUM_PID = new NumPID(0.0005, 0.0000, 0),
+				ARCADE_ANG_NUM_PID = new NumPID(0.07, 0., 0.), LIFT_NUM_PID = new NumPID(2, 0, 0);
 
-		public final static int COLLECTOR_WHEEL_PORT = 3;
+		public final static int COLLECTOR_WHEEL_PORT1 = 3;
+		public final static int COLLECTOR_WHEEL_PORT2 = 4;
 		public final static int LIFT_PORT = 2;
 		/*
 		 * Motor Speed Factor
@@ -43,8 +44,8 @@ public class RobotMap {
 		 */
 		public static double TELE_LEFT_SPEED_FACTOR = 0.7;
 		public static double TELE_RIGHT_SPEED_FACTOR = 0.7;
-		public static double TELE_SPD_FACTOR = 0.6;
-		public static double TELE_ANG_FACTOR = 0.6;
+		public static double TELE_SPD_FACTOR = 0.7;
+		public static double TELE_ANG_FACTOR = 0.7;
 	}
 
 	public static class JOYSTICK {

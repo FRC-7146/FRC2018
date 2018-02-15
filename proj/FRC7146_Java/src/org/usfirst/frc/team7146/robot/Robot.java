@@ -63,7 +63,14 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putData("Auto mode", m_chooser);
 		m_oi.mapOI();// execute at the end to make sure all other subsystems initialized
 		// chooser.addObject("My Auto", new MyAutoCommand());
-	
+		/*while (true) {
+			try {
+				m_VisionSubsystem.findCube();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}*/
+
 	}
 
 	/**
@@ -104,7 +111,7 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		ChasisDriveSubsystem.LOCK_OVERRIDE = false;
 
-		//m_autonomousCommand = m_chooser.getSelected();
+		// m_autonomousCommand = m_chooser.getSelected();
 		m_autonomousCommand = new AutonomousCommandGroup(99);
 
 		RobotMap.mStatus = STATUS.STAT_AUTO;

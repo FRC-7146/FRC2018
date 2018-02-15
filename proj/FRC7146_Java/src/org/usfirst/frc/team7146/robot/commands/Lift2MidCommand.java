@@ -9,7 +9,7 @@ import org.usfirst.frc.team7146.robot.subsystems.LiftSubsystem.POSITION;
 public class Lift2MidCommand extends CmdBase {
 	private static final java.util.logging.Logger logger = Logger.getLogger(Lift2MidCommand.class.getName());
 	public static CmdBase instance;
-	public static boolean AngleTurnCommandDebug = true;
+	public static boolean AngleTurnCommandDebug = false;
 
 	public POSITION dst = POSITION.DOWN;
 	LiftSubsystem mLift = Robot.m_LiftSubsystem;
