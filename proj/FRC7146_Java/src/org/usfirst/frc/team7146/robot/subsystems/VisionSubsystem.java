@@ -78,6 +78,7 @@ public class VisionSubsystem extends Subsystem {
 	double minSize = 1;
 
 	public VisualTarget findCube() throws Exception {
+		/*
 		// TODO
 		List<Mat> toRelsease = new ArrayList<Mat>();
 
@@ -146,7 +147,8 @@ public class VisionSubsystem extends Subsystem {
 
 	public void dispFram(Mat m) {
 		// this.cvSrcOut.notifyError(cvSink.getError());
-		this.cvSrcOut.putFrame(m);
+		this.cvSrcOut.putFrame(m);*/
+		return null;
 
 	}
 
