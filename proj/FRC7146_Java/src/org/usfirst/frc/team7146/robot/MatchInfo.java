@@ -8,11 +8,13 @@ public class MatchInfo {
 	private static final Logger logger = Logger.getLogger(MatchInfo.class.getName());
 	public static boolean matchInfoDebug = false;
 
+	static final String mPrefix = "CMD:";
 	public static final String NAH = "";
 	public static char scale1 = 'L';
 	public static char balance = 'L';
 	public static char scale2 = 'L';
 	public static boolean success = false;
+	public static boolean plainRun = false;
 
 	public MatchInfo() {
 	}
@@ -22,7 +24,18 @@ public class MatchInfo {
 		if (matchInfoDebug) {
 			logger.info("Recieve: " + msg);
 		}
-		try {
+		try {/*
+			if (msg.startsWith(mPrefix)) {
+				msg.replace(mPrefix, "");
+				if (msg.startsWith("0")) {
+					plainRun = false;
+				}
+				if (msg.startsWith("1")) {
+					plainRun = true;
+				}
+				return false;
+			}*/
+
 			if (!msg.equals(NAH)) {
 				MatchInfo.scale1 = msg.charAt(0);
 				MatchInfo.balance = msg.charAt(1);

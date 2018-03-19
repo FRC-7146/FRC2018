@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import org.opencv.core.Point;
 import org.usfirst.frc.team7146.robot.Robot;
+import org.usfirst.frc.team7146.robot.RobotMap;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
 import org.usfirst.frc.team7146.robot.subsystems.VisionSubsystem;
 
@@ -66,10 +67,10 @@ public class AutoGrabCubeCommand extends CmdBase {
 		Point c = v.center;
 		if (c.y > 160 / 2) {
 			mChasis.mArcadeRequest(spd, 0.2);
-			SmartDashboard.putString("Vision", "Right");
+			if (RobotMap.DEBUG)SmartDashboard.putString("Vision", "Right");
 		} else {
 			mChasis.mArcadeRequest(spd, -0.2);
-			SmartDashboard.putString("Vision", "Left");
+			if (RobotMap.DEBUG)SmartDashboard.putString("Vision", "Left");
 		}
 	}
 

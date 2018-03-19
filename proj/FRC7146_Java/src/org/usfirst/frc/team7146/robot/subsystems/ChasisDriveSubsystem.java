@@ -38,7 +38,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 
 	SpeedController mLeftMotor = Robot.m_oi.mLeftMotor;
 	SpeedController mRightMotor = Robot.m_oi.mRightMotor;
-	DifferentialDrive mDifferentialDrive = Robot.m_oi.mDifferentialDrive;
+	public DifferentialDrive mDifferentialDrive = Robot.m_oi.mDifferentialDrive;
 
 	Gyro mGyro = Robot.m_oi.mGyro;
 	Accelerometer mAccelerometer = Robot.m_oi.mAccelerometer;
@@ -79,7 +79,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 
 				@Override
 				public double pidGet() {
-					SmartDashboard.putBoolean("Dispatch Update:", !LOCK_OVERRIDE);
+					// SmartDashboard.putBoolean("Dispatch Update:", !LOCK_OVERRIDE);
 					return Robot.m_GyroSubsystem.getAngle();
 				}
 
@@ -95,7 +95,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 					if (!LOCK_OVERRIDE) {
 						mArcadeDispatch();
 					} else {
-						//logger.info("Chassis pid Override");
+						// logger.info("Chassis pid Override");
 						resetAngleState();
 					}
 
@@ -136,7 +136,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 					if (!LOCK_OVERRIDE) {
 						mArcadeDispatch();
 					} else {
-						//logger.info("Chassis pid Override");
+						// logger.info("Chassis pid Override");
 						resetAngleState();
 					}
 				}
@@ -202,8 +202,10 @@ public class ChasisDriveSubsystem extends Subsystem {
 		 */
 		this.requestedAng += rot;
 		mPIDArcadeAngCtler.setSetpoint(this.requestedAng);
-		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
-		SmartDashboard.putNumber("Requested speed", requestedSpd);
+		if (RobotMap.DEBUG) {
+			SmartDashboard.putNumber("Requested Angle: ", requestedAng);
+			SmartDashboard.putNumber("Requested speed", requestedSpd);
+		}
 		if (CHASIS_DEBUG) {
 			logger.info("Got an request of" + spd + ", " + rot);
 		}
@@ -234,26 +236,33 @@ public class ChasisDriveSubsystem extends Subsystem {
 	}
 
 	public void mArcadeDispatch() {
+
 		if (this.requestedSpd >= 0.05) {
 			this.mDriveArcade(this.requestedSpd, this.mPIDArcadeAngCtler.get());
-			SmartDashboard.putBoolean("Use speed", false);
+			if (RobotMap.DEBUG)
+				SmartDashboard.putBoolean("Use speed", true);
 		} else {
 			this.mDriveArcade(-this.mPIDArcadeDispCtler.get(), mPIDArcadeAngCtler.get());
+			//logger.info("" + mPIDArcadeAngCtler.get());
 		}
+
 		writeStatus();
 	}
 
 	public void writeStatus() {
-		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
-		SmartDashboard.putNumber("Requested speed", requestedSpd != 0 ? requestedSpd : this.mPIDArcadeDispCtler.get());
-		SmartDashboard.putNumber("Exec Angle: ", this.mPIDArcadeAngCtler.get());
-		SmartDashboard.putNumber("Measured angle", Robot.m_GyroSubsystem.getAngle());
-		SmartDashboard.putNumber("Gyro ang", this.mGyro.getAngle());
-		SmartDashboard.putNumber("Gyro Absolute ang", Robot.m_GyroSubsystem.getAbsoluteAngle());
-		SmartDashboard.putNumber("Encoder displacement", Robot.m_GyroSubsystem.getPosition());
-		SmartDashboard.putNumber("Requested displacement", Robot.m_GyroSubsystem.getPosition());
-		SmartDashboard.putNumber("Requested Angle: ", requestedAng);
-		SmartDashboard.putNumber("Requested Disp", requestedDisp);
+		if (RobotMap.DEBUG) {
+			SmartDashboard.putNumber("Requested Angle: ", requestedAng);
+			SmartDashboard.putNumber("Requested speed",
+					requestedSpd != 0 ? requestedSpd : this.mPIDArcadeDispCtler.get());
+			SmartDashboard.putNumber("Exec Angle: ", this.mPIDArcadeAngCtler.get());
+			SmartDashboard.putNumber("Measured angle", Robot.m_GyroSubsystem.getAngle());
+			SmartDashboard.putNumber("Gyro ang", this.mGyro.getAngle());
+			SmartDashboard.putNumber("Gyro Absolute ang", Robot.m_GyroSubsystem.getAbsoluteAngle());
+			SmartDashboard.putNumber("Encoder displacement", Robot.m_GyroSubsystem.getPosition());
+			SmartDashboard.putNumber("Requested displacement", Robot.m_GyroSubsystem.getPosition());
+			SmartDashboard.putNumber("Requested Angle: ", requestedAng);
+			SmartDashboard.putNumber("Requested Disp", requestedDisp);
+		}
 	}
 
 	public void resetAngleState() {
@@ -268,7 +277,7 @@ public class ChasisDriveSubsystem extends Subsystem {
 	}
 
 	public boolean isOnPosition() {
-		return (Math.abs(mPIDArcadeAngCtler.get()) < 0.02 && Math.abs(mPIDArcadeDispCtler.get()) < 0.02);
+		return (Math.abs(mPIDArcadeAngCtler.get()) < 0.1 && Math.abs(mPIDArcadeDispCtler.get()) < 0.1);
 	}
 
 	public void stopDrive() {

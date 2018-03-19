@@ -1,6 +1,7 @@
 package org.usfirst.frc.team7146.robot.subsystems;
 
 import org.usfirst.frc.team7146.robot.Robot;
+import org.usfirst.frc.team7146.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.SpeedController;
@@ -51,10 +52,12 @@ public class LiftSubsystem extends Subsystem {
 	}
 
 	public void writeStatus() {
-		SmartDashboard.putBoolean("Switch Up", mUpSw.get());
-		SmartDashboard.putBoolean("Switch Middle", mMidSw.get());
-		SmartDashboard.putBoolean("Switch Down", mDwSw.get());
-		SmartDashboard.putNumber("Switch Speed", mMotor.get());
+		if (RobotMap.DEBUG) {
+			SmartDashboard.putBoolean("Switch Up", mUpSw.get());
+			SmartDashboard.putBoolean("Switch Middle", mMidSw.get());
+			SmartDashboard.putBoolean("Switch Down", mDwSw.get());
+			SmartDashboard.putNumber("Switch Speed", mMotor.get());
+		}
 	}
 
 	@Override

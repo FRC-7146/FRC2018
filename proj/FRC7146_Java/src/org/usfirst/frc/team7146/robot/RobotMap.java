@@ -42,10 +42,10 @@ public class RobotMap {
 		 * 
 		 * Do not raise more than 1
 		 */
-		public static double TELE_LEFT_SPEED_FACTOR = 0.7;
-		public static double TELE_RIGHT_SPEED_FACTOR = 0.7;
-		public static double TELE_SPD_FACTOR = 0.7;
-		public static double TELE_ANG_FACTOR = 0.7;
+		public static double TELE_LEFT_SPEED_FACTOR = 0.75;
+		public static double TELE_RIGHT_SPEED_FACTOR = 0.75;
+		public static double TELE_SPD_FACTOR = 0.75;
+		public static double TELE_ANG_FACTOR = 0.75;
 	}
 
 	public static class JOYSTICK {

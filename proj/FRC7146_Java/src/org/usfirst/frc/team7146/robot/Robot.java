@@ -9,6 +9,7 @@ package org.usfirst.frc.team7146.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,9 +18,11 @@ import testCommands.AccelTestCMD;
 import java.util.logging.Logger;
 
 import org.usfirst.frc.team7146.robot.RobotMap.STATUS;
+import org.usfirst.frc.team7146.robot.commands.AbsoluteAngleTurnCommand;
 import org.usfirst.frc.team7146.robot.commands.AutonomousCommandGroup;
 import org.usfirst.frc.team7146.robot.commands.ChasisStateUpdateCommand;
 import org.usfirst.frc.team7146.robot.commands.CmdBase;
+import org.usfirst.frc.team7146.robot.commands.StraightDriveCommand;
 import org.usfirst.frc.team7146.robot.commands.TeleopArcadeDriveCommand;
 import org.usfirst.frc.team7146.robot.commands.TeleopTankDriveCommand;
 import org.usfirst.frc.team7146.robot.subsystems.ChasisDriveSubsystem;
@@ -62,14 +65,15 @@ public class Robot extends TimedRobot {
 		m_LiftSubsystem = new LiftSubsystem();
 		SmartDashboard.putData("Auto mode", m_chooser);
 		m_oi.mapOI();// execute at the end to make sure all other subsystems initialized
-		// chooser.addObject("My Auto", new MyAutoCommand());
-		/*while (true) {
-			try {
-				m_VisionSubsystem.findCube();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}*/
+		m_chooser.addDefault("Standard plain", new AutonomousCommandGroup(99, true, 'M'));
+		m_chooser.addObject("Standard middle", new AutonomousCommandGroup(99, false, 'M'));
+		m_chooser.addObject("Standard left", new AutonomousCommandGroup(99, false, 'L'));
+		m_chooser.addObject("Standard right", new AutonomousCommandGroup(99, false, 'R'));
+
+		/*
+		 * while (true) { try { m_VisionSubsystem.findCube(); } catch (Exception e) {
+		 * e.printStackTrace(); } }
+		 */
 
 	}
 
@@ -88,6 +92,7 @@ public class Robot extends TimedRobot {
 		if (!MatchInfo.success) {
 			MatchInfo.infoInit();
 		}
+		m_ChasisDriveSubsystem.resetAngleState();
 		Scheduler.getInstance().run();
 	}
 
@@ -110,14 +115,17 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 		ChasisDriveSubsystem.LOCK_OVERRIDE = false;
-
-		// m_autonomousCommand = m_chooser.getSelected();
-		m_autonomousCommand = new AutonomousCommandGroup(99);
+		if (!MatchInfo.success) {
+			MatchInfo.infoInit();
+		}
+		// new AutonomousCommandGroup("auto", 99, false, 'M');
+		// m_autonomousCommand = new AutonomousCommandGroup(99);
 
 		RobotMap.mStatus = STATUS.STAT_AUTO;
-		if (m_autonomousCommand != null) {
-			m_autonomousCommand.start();
-		}
+		/*
+		 * if (m_autonomousCommand != null) { m_autonomousCommand.start(); }
+		 */
+		// new StraightDriveCommand(0.5).start();
 		/*
 		 * String autoSelected = SmartDashboard.getString("Auto Selector", "Default");
 		 * switch(autoSelected) { case "My Auto": autonomousCommand = new
@@ -127,22 +135,26 @@ public class Robot extends TimedRobot {
 		// schedule the autonomous command (example)
 	}
 
+	int run = 200000;
+
 	@Override
 	public void autonomousPeriodic() {
-		if (!RobotMap.mStatus.equals(STATUS.STAT_ERR)) {
-			this.mPeriodic();
-			Scheduler.getInstance().run();
-		} else {
-			logger.warning("Err in Periodic");
-			if (!RobotMap.DEBUG) {// Stop running for debug
-				logger.warning("Ignoring");
-				Scheduler.getInstance().run();
-			}
+		// this.mPeriodic();
+		// m_ChasisDriveSubsystem.mDifferentialDrive.arcadeDrive(0.5, 0);
+		while (run-- > 0) {
+			Robot.m_oi.mLeftMotor.set(-0.5);
+			Robot.m_oi.mRightMotor.set(0.5);
 		}
+		m_ChasisDriveSubsystem.resetAngleState();
+		Scheduler.getInstance().run();
+		logger.info("run");
+
 	}
 
 	@Override
 	public void teleopInit() {
+		m_oi.mLeftMotor.set(0);
+		m_oi.mRightMotor.set(0);
 		ChasisDriveSubsystem.LOCK_OVERRIDE = true;
 		RobotMap.mStatus = STATUS.STAT_TELEOP;
 		if (m_autonomousCommand != null) {

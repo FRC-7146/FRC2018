@@ -46,7 +46,8 @@ public class TeleopArcadeDriveCommand extends CmdBase {
 		double speed = Robot.m_oi.mJoystick1.getRawAxis(3);// Right x
 		double ang = Robot.m_oi.mJoystick1.getRawAxis(2);// Left y
 		double pov = mJoystick.getPOV();
-		SmartDashboard.putNumber("POV", pov);
+		if (RobotMap.DEBUG)
+			SmartDashboard.putNumber("POV", pov);
 
 		// if (ChasisDriveSubsystem.LOCK_OVERRIDE) {// not operating
 
